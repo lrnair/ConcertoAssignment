@@ -16,7 +16,10 @@ connection.Open();
 builder.Services.AddDbContext<DataContext>(options => options.UseSqlite(connection));
 
 // Register MediatR
-builder.Services.AddMediatR(typeof(Program).Assembly);
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
+});
 
 var app = builder.Build();
 

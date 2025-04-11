@@ -31,6 +31,7 @@ namespace DotNetInterview.API.Query
         }
 
         // determines highest discount available for an item and returns price after applying highest discount
+        // ***
         // When the quantity of stock for an item is greater than 5, the price should be discounted by 10%
         // When the quantity of stock for an item is greater than 10, the price should be discounted by 20%
         // Every Monday between 12pm and 5pm, all items are discounted by 50%

@@ -25,5 +25,16 @@ namespace DotNetInterview.API.Controller
             var items = await _mediator.Send(new GetAllItemsQuery());
             return Ok(items);
         }
+
+        // Get a single item
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Item>> GetItemById(Guid id)
+        {
+            var item = await _mediator.Send(new GetItemByIdQuery(id));
+            if (item == null)
+                return NotFound();
+
+            return Ok(item);
+        }
     }
 }

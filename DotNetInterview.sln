@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34031.279
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetInterview.API", "DotNetInterview.API\DotNetInterview.API.csproj", "{A16D09AC-0670-4CEF-A6E5-3263938D7ABE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{92DA09A6-4CDC-4DF0-9D87-45041EEAD671}"
+	ProjectSection(SolutionItems) = preProject
+		Readme.md = Readme.md
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetInterview.Tests", "DotNetInterview.Tests\DotNetInterview.Tests.csproj", "{CDCF5486-ED2A-443D-991F-D73337213A4C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A16D09AC-0670-4CEF-A6E5-3263938D7ABE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A16D09AC-0670-4CEF-A6E5-3263938D7ABE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A16D09AC-0670-4CEF-A6E5-3263938D7ABE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A16D09AC-0670-4CEF-A6E5-3263938D7ABE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CDCF5486-ED2A-443D-991F-D73337213A4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CDCF5486-ED2A-443D-991F-D73337213A4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CDCF5486-ED2A-443D-991F-D73337213A4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CDCF5486-ED2A-443D-991F-D73337213A4C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1122FF07-76F7-4FE5-A00E-6A736175497E}
+	EndGlobalSection
+EndGlobal

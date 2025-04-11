@@ -6,5 +6,7 @@ public record Item
     public string Reference { get; set; }
     public string Name { get; set; }
     public decimal Price { get; set; }
+    public decimal HighestDiscount { get; set; } // highest discount applicable for an item
+    public decimal PriceAfterDiscount { get; set; } // Price of item after discount applied
     public ICollection<Variation> Variations { get; set; } = new List<Variation>();
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using DotNetInterview.API.Domain;
 using DotNetInterview.API.Query;
+using DotNetInterview.API.Command;
 
 namespace DotNetInterview.API.Controller
 {
@@ -32,9 +33,17 @@ namespace DotNetInterview.API.Controller
         {
             var item = await _mediator.Send(new GetItemByIdQuery(id));
             if (item == null)
-                return NotFound();
+                return NotFound();  // 404 Not Found status code
 
             return Ok(item);
+        }
+
+        // Create a new item
+        [HttpPost]
+        public async Task<ActionResult<Item>> CreateItem([FromBody] CreateItemCommand command)
+        {
+            var item = await _mediator.Send(command);
+            return CreatedAtAction(nameof(GetItemById), new { id = item.Id }, item);    // returns created data with 201 Created status code
         }
     }
 }

@@ -1,21 +1,13 @@
 using MediatR;
-using DotNetInterview.API.DTO;
+using DotNetInterview.API.Domain;
 
 namespace DotNetInterview.API.Command
 {
-    public class CreateItemCommand : IRequest<ItemDto>
+    public class CreateItemCommand : IRequest<Item>
     {
         public string Reference { get; set; }
         public string Name { get; set; }
         public decimal Price { get; set; }
-        public ICollection<VariationDto> Variations { get; set; } = new List<VariationDto>();
-
-        public CreateItemCommand(string reference, string name, decimal price, ICollection<VariationDto> variations)
-        {
-            Reference = reference;
-            Name = name;
-            Price = price;
-            Variations = variations;
-        }
+        public List<Variation>? Variations { get; set; }
     }
 }

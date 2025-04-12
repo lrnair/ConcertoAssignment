@@ -1,10 +1,10 @@
 using MediatR;
 using System.Collections.Generic;
-using DotNetInterview.API.DTO;
+using DotNetInterview.API.Domain;
 
 namespace DotNetInterview.API.Query
 {
-	public record GetItemByIdQuery : IRequest<ItemDto>
+	public record GetItemByIdQuery : IRequest<Item>
     {
         public Guid Id { get; }
 

@@ -3,11 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using DotNetInterview.API.DTO;
+using DotNetInterview.API.Domain;
 
 namespace DotNetInterview.API.Query
 {
-    public class GetAllItemsHandler : IRequestHandler<GetAllItemsQuery, IEnumerable<GetAllItemsDto>>
+    public class GetAllItemsHandler : IRequestHandler<GetAllItemsQuery, IEnumerable<Item>>
     {
         private readonly DataContext _context;
 
@@ -16,46 +16,32 @@ namespace DotNetInterview.API.Query
             _context = context;
         }
 
-        public async Task<IEnumerable<GetAllItemsDto>> Handle(GetAllItemsQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<Item>> Handle(GetAllItemsQuery request, CancellationToken cancellationToken)
         {
             var items = await _context.Items
                                  .Include(i => i.Variations)
                                  .ToListAsync(cancellationToken);
 
-            var result = items.Select(item =>
+            foreach (var item in items)
             {
-                var stockQuantity = item.Variations.Sum(v => v.Quantity);
-                var stockStatus = stockQuantity > 0 ? "In Stock": "Sold Out";
-                var highestDiscount = CalculateHighestDiscount(stockQuantity);
-                var priceAfterDiscount = item.Price * (1 - highestDiscount);    // price after applying highest discount
+                item.PriceAfterDiscount = CalculatePriceAfterDiscount(item);
+            }
 
-                return new GetAllItemsDto
-                {
-                    Id = item.Id,
-                    Reference = item.Reference,
-                    Name = item.Name,
-                    Price = item.Price,
-                    HighestDiscount = highestDiscount,
-                    PriceAfterDiscount = priceAfterDiscount,
-                    StockQuantity = stockQuantity,
-                    StockStatus = stockStatus
-                };
-            });
-
-            return result;
+            return items;
         }
 
-        // determines highest discount available for an item
+        // determines highest discount available for an item and returns price after applying highest discount
         // ***
         // When the quantity of stock for an item is greater than 5, the price should be discounted by 10%
         // When the quantity of stock for an item is greater than 10, the price should be discounted by 20%
         // Every Monday between 12pm and 5pm, all items are discounted by 50%
         // Only a single discount should be applied to an item at any time, the highest discount percentage
-        public decimal CalculateHighestDiscount(int stockQuantity)
+        public decimal CalculatePriceAfterDiscount(Item item)
         {
             decimal discount = 0;
             DateTime utcTime = DateTime.UtcNow;
             DateTime localTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, TimeZoneInfo.Local);
+            int stockQuantity = item.Variations.Sum(v => v.Quantity);
 
             if (stockQuantity > 10)
                 discount = 0.20m;
@@ -69,7 +55,9 @@ namespace DotNetInterview.API.Query
                 discount = Math.Max(discount, 0.50m); // highest discount percentage selected based on stock quantity and time (12-5pm) on a Monday
             }
 
-            return discount;
+            item.HighestDiscount = discount;
+
+            return item.Price * (1 - discount);
         }
     }
 }

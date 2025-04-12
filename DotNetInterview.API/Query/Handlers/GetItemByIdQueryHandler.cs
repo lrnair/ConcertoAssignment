@@ -3,11 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using DotNetInterview.API.Domain;
+using DotNetInterview.API.DTO;
 
 namespace DotNetInterview.API.Query
 {
-    public class GetItemByIdQueryHandler : IRequestHandler<GetItemByIdQuery, Item>
+    public class GetItemByIdQueryHandler : IRequestHandler<GetItemByIdQuery, ItemDto>
     {
         private readonly DataContext _context;
 
@@ -16,11 +16,27 @@ namespace DotNetInterview.API.Query
             _context = context;
         }
 
-        public async Task<Item> Handle(GetItemByIdQuery request, CancellationToken cancellationToken)
+        public async Task<ItemDto> Handle(GetItemByIdQuery request, CancellationToken cancellationToken)
         {
-            return await _context.Items
-                                 .Include(i => i.Variations)
-                                 .FirstOrDefaultAsync(i => i.Id == request.Id, cancellationToken);
+            var item = await _context.Items
+                     .Include(i => i.Variations)
+                     .FirstOrDefaultAsync(i => i.Id == request.Id, cancellationToken);
+
+            if (item == null)
+                return null;
+
+            return new ItemDto
+            {
+                Id = item.Id,
+                Reference = item.Reference,
+                Name = item.Name,
+                Price = item.Price,
+                Variations = item.Variations.Select(v => new VariationDto
+                {
+                    Size = v.Size,
+                    Quantity = v.Quantity
+                }).ToList()
+            };
         }
     }
 }

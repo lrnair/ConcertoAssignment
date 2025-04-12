@@ -1,10 +1,10 @@
-﻿namespace DotNetInterview.API.Domain;
+namespace DotNetInterview.API.DTO;
 
-public record Item
+public record ItemDto
 {
     public Guid Id { get; set; }
     public string Reference { get; set; }
     public string Name { get; set; }
     public decimal Price { get; set; }
-    public ICollection<Variation> Variations { get; set; } = new List<Variation>();
+    public ICollection<VariationDto> Variations { get; set; } = new List<VariationDto>();
 }

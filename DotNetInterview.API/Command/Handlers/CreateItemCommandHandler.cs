@@ -1,10 +1,11 @@
 using MediatR;
 using DotNetInterview.API.Domain;
+using DotNetInterview.API.DTO;
 using Microsoft.EntityFrameworkCore;
 
 namespace DotNetInterview.API.Command
 {
-    public class CreateItemCommandHandler : IRequestHandler<CreateItemCommand, Item>
+    public class CreateItemCommandHandler : IRequestHandler<CreateItemCommand, ItemDto>
     {
         private readonly DataContext _context;
 
@@ -13,7 +14,7 @@ namespace DotNetInterview.API.Command
             _context = context;
         }
 
-        public async Task<Item> Handle(CreateItemCommand request, CancellationToken cancellationToken)
+        public async Task<ItemDto> Handle(CreateItemCommand request, CancellationToken cancellationToken)
         {
             var itemId = Guid.NewGuid();
 
@@ -35,7 +36,18 @@ namespace DotNetInterview.API.Command
             _context.Items.Add(item);
             await _context.SaveChangesAsync(cancellationToken);
 
-            return item;
+            return new ItemDto
+            {
+                Id = item.Id,
+                Reference = item.Reference,
+                Name = item.Name,
+                Price = item.Price,
+                Variations = item.Variations.Select(v => new VariationDto
+                {
+                    Size = v.Size,
+                    Quantity = v.Quantity
+                }).ToList()
+            };
         }
     }
 }

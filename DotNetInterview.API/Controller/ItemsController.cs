@@ -2,7 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using DotNetInterview.API.Domain;
+using DotNetInterview.API.DTO;
 using DotNetInterview.API.Query;
 using DotNetInterview.API.Command;
 
@@ -21,7 +21,7 @@ namespace DotNetInterview.API.Controller
 
         // List all items
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Item>>> GetAllItems()
+        public async Task<ActionResult<IEnumerable<GetAllItemsDto>>> GetAllItems()
         {
             var items = await _mediator.Send(new GetAllItemsQuery());
             return Ok(items);
@@ -29,7 +29,7 @@ namespace DotNetInterview.API.Controller
 
         // Get a single item
         [HttpGet("{id}")]
-        public async Task<ActionResult<Item>> GetItemById(Guid id)
+        public async Task<ActionResult<ItemDto>> GetItemById(Guid id)
         {
             var item = await _mediator.Send(new GetItemByIdQuery(id));
             if (item == null)
@@ -40,7 +40,7 @@ namespace DotNetInterview.API.Controller
 
         // Create a new item
         [HttpPost]
-        public async Task<ActionResult<Item>> CreateItem([FromBody] CreateItemCommand command)
+        public async Task<ActionResult<ItemDto>> CreateItem([FromBody] CreateItemCommand command)
         {
             var item = await _mediator.Send(command);
             return CreatedAtAction(nameof(GetItemById), new { id = item.Id }, item);    // returns created data with 201 Created status code

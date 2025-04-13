@@ -60,5 +60,17 @@ namespace DotNetInterview.API.Controller
 
             return Ok(item);
         }
+
+        // Delete an item
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteItem(Guid id)
+        {
+            var result = await _mediator.Send(new DeleteItemCommand(id));
+
+            if (!result)
+                return NotFound();  //  404 Not Found status code if the item for deletion could not be found in db 
+
+            return Ok(new { message = $"Item with ID {id} deleted successfully." });
+        }
     }
 }

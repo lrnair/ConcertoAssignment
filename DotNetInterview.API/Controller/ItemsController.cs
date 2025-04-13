@@ -24,8 +24,15 @@ namespace DotNetInterview.API.Controller
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GetAllItemsDto>>> GetAllItems()
         {
-            var items = await _mediator.Send(new GetAllItemsQuery());
-            return Ok(items);
+            try
+            {
+                var items = await _mediator.Send(new GetAllItemsQuery());
+                return Ok(items);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
         }
 
         // Get a single item

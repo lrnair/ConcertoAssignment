@@ -2,6 +2,7 @@ using DotNetInterview.API;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using MediatR;
+using DotNetInterview.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,9 @@ builder.Services.AddMediatR(cfg =>
 {
     cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
 });
+
+// register SystemTimeProvider
+builder.Services.AddSingleton<ITimeProvider, SystemTimeProvider>();
 
 var app = builder.Build();
 

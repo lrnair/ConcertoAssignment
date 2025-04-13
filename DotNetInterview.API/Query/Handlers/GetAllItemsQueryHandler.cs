@@ -4,16 +4,19 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using DotNetInterview.API.DTO;
+using DotNetInterview.API.Services;
 
 namespace DotNetInterview.API.Query
 {
-    public class GetAllItemsHandler : IRequestHandler<GetAllItemsQuery, IEnumerable<GetAllItemsDto>>
+    public class GetAllItemsQueryHandler : IRequestHandler<GetAllItemsQuery, IEnumerable<GetAllItemsDto>>
     {
         private readonly DataContext _context;
+        private readonly ITimeProvider _timeProvider;
 
-        public GetAllItemsHandler(DataContext context)
+        public GetAllItemsQueryHandler(DataContext context, ITimeProvider timeProvider)
         {
             _context = context;
+            _timeProvider = timeProvider;
         }
 
         public async Task<IEnumerable<GetAllItemsDto>> Handle(GetAllItemsQuery request, CancellationToken cancellationToken)
@@ -54,7 +57,7 @@ namespace DotNetInterview.API.Query
         public decimal CalculateHighestDiscount(int stockQuantity)
         {
             decimal discount = 0;
-            DateTime utcTime = DateTime.UtcNow;
+            DateTime utcTime = _timeProvider.UtcNow;
             DateTime localTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, TimeZoneInfo.Local);
 
             if (stockQuantity > 10)
@@ -62,7 +65,8 @@ namespace DotNetInterview.API.Query
             else if (stockQuantity > 5)
                 discount = 0.10m;
 
-            if (localTime.DayOfWeek == DayOfWeek.Monday &&
+            if (stockQuantity > 0 &&
+                localTime.DayOfWeek == DayOfWeek.Monday &&
                 localTime.TimeOfDay >= TimeSpan.FromHours(12) &&
                 localTime.TimeOfDay <= TimeSpan.FromHours(17))
             {

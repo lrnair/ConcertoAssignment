@@ -38,12 +38,19 @@ namespace DotNetInterview.API.Controller
         // Get a single item
         [HttpGet("{id}")]
         public async Task<ActionResult<Item>> GetItemById(Guid id)
-        {
-            var item = await _mediator.Send(new GetItemByIdQuery(id));
-            if (item == null)
-                return NotFound();  // 404 Not Found status code if the requested item could not be found in db
+        {           
+            try
+            {
+                var item = await _mediator.Send(new GetItemByIdQuery(id));
+                if (item == null)
+                    return NotFound();  // 404 Not Found status code if the requested item could not be found in db
 
-            return Ok(item);
+                return Ok(item);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
         }
 
         // Create a new item

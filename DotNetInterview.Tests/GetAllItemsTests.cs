@@ -42,7 +42,7 @@ namespace DotNetInterview.Tests
 		[Test]
 		public async Task GetAllItems_AppliesHighestDiscountOnNonMondays()
 		{
-			// create mock items
+			// mock items in db
 			var item1 = new Item
 			{
 				Reference = "REF001",
@@ -112,9 +112,9 @@ namespace DotNetInterview.Tests
             var handler = new GetAllItemsQueryHandler(_dataContext, mockTimeProvider);
 			var result = await handler.Handle(new GetAllItemsQuery(), CancellationToken.None);
 
-			// Assert
-			// check for count of items
-			var items = result.ToList();
+            // Assert
+            // check count of items to verify if list of all items get returned when items exist in db
+            var items = result.ToList();
 			Assert.AreEqual(5, items.Count);
 
             // check if discount and price after discount is computed correctly
@@ -153,7 +153,7 @@ namespace DotNetInterview.Tests
         [Test]
 		public async Task GetAllItems_AppliesHighestDiscountOnMonday()
 		{
-            // create mock items
+            // mock items in db
             var item1 = new Item
 			{
 				Reference = "REF001",
@@ -220,7 +220,7 @@ namespace DotNetInterview.Tests
 			var result = await handler.Handle(new GetAllItemsQuery(), CancellationToken.None);
 
             // Assert
-            // check for count of items
+            // check count of items to verify if list of all items get returned when items exist in db
             var items = result.ToList();
             Assert.AreEqual(5, items.Count);
 
@@ -260,7 +260,7 @@ namespace DotNetInterview.Tests
         [Test]
         public async Task GetAllItems_CalculatesStockQuantityAndStatusCorrectly()
         {
-            // create mock items
+            // mock items in db
             var item1 = new Item
             {
                 Reference = "REF001",
@@ -301,6 +301,7 @@ namespace DotNetInterview.Tests
                 UtcNow = new DateTime(2025, 4, 16, 13, 0, 0) // Wednesday, 1 PM UTC
             };
 
+            // invoke the query handler
             var handler = new GetAllItemsQueryHandler(_dataContext, mockTimeProvider);
             var result = await handler.Handle(new GetAllItemsQuery(), CancellationToken.None);
 
@@ -319,7 +320,7 @@ namespace DotNetInterview.Tests
             Assert.AreEqual("Sold Out", retrievedItem3.StockStatus);
         }
 
-        // checks if empty list get returned if empty list is returned when no items exist in db
+        // checks if empty list get returned when no items exist in db
         [Test]
         public async Task GetAllItems_ReturnsEmptyList_WhenNoItemsExist()
         {

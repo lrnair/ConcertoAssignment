@@ -134,10 +134,10 @@ namespace DotNetInterview.Tests
         [Test]
         public async Task GetItemById_ReturnsOkResult_WithRequestedItem()
         {
-            // requested itemId and its variationIds
-            var itemId = Guid.NewGuid();
-            var variation1Id = Guid.NewGuid();
-            var variation2Id = Guid.NewGuid();
+			// requested itemId and its variationIds
+			var itemId = Guid.NewGuid();
+			var variation1Id = Guid.NewGuid();
+			var variation2Id = Guid.NewGuid();
 
             // mock item to be returned from handler
             var expectedItem = new Item
@@ -171,7 +171,7 @@ namespace DotNetInterview.Tests
                 .ReturnsAsync(expectedItem);
 
             // invoke the GetItemById API
-            var result = await _controller.GetItemById(itemId);
+            var result = await _controller.GetItemById(itemId.ToString());
 
             // Assert
             // check if response is OK
@@ -197,7 +197,7 @@ namespace DotNetInterview.Tests
                 .ReturnsAsync((Item)null);
 
             // invoke the GetItemById API
-            var result = await _controller.GetItemById(itemId);
+            var result = await _controller.GetItemById(itemId.ToString());
 
             // Assert
             // check if response is Not Found
@@ -220,7 +220,7 @@ namespace DotNetInterview.Tests
                 .ThrowsAsync(new Exception("Unexpected error"));
 
             // invoke the GetItemById API
-            var result = await _controller.GetItemById(itemId);
+            var result = await _controller.GetItemById(itemId.ToString());
 
             // Assert
             // check if API handles mediator exception with 500 error and message
@@ -229,6 +229,24 @@ namespace DotNetInterview.Tests
             Assert.IsNotNull(objectResult);
             Assert.AreEqual(500, objectResult.StatusCode);
             Assert.AreEqual("An error occurred while processing your request.", objectResult.Value);
+        }
+
+        // GetItemById API - Returns Bad Request when invalid itemId provided
+        public async Task GetItemById_InvalidItemId_ReturnsBadRequest()
+        {
+            // mock an invalid itemId. itemId is expected to be a valid GUID
+            var itemId = "invalid-guid";
+
+            // invoke the GetItemById API
+            var result = await _controller.GetItemById(itemId);
+
+            // Assert
+            // check if response is Bad Request
+            Assert.IsInstanceOf<BadRequestObjectResult>(result.Result);
+            var badRequestResult = result.Result as BadRequestObjectResult;
+            Assert.IsNotNull(badRequestResult);
+            Assert.AreEqual(400, badRequestResult.StatusCode);
+            Assert.AreEqual("Invalid item Id. Please provide a valid GUID as the Id", badRequestResult.Value);
         }
 
     }

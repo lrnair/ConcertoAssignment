@@ -37,11 +37,16 @@ namespace DotNetInterview.API.Controller
 
         // Get a single item
         [HttpGet("{id}")]
-        public async Task<ActionResult<Item>> GetItemById(Guid id)
+        public async Task<ActionResult<Item>> GetItemById(string id)
         {           
             try
             {
-                var item = await _mediator.Send(new GetItemByIdQuery(id));
+                if (!Guid.TryParse(id, out var guid))
+                {
+                    return BadRequest("Invalid item Id. Please provide a valid GUID as the Id");
+                }
+
+                var item = await _mediator.Send(new GetItemByIdQuery(guid));
                 if (item == null)
                     return NotFound();  // 404 Not Found status code if the requested item could not be found in db
 

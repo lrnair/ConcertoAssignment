@@ -342,5 +342,26 @@ namespace DotNetInterview.Tests
             Assert.IsNotNull(result);
             Assert.IsEmpty(result);
         }
+
+        // check if InvalidOperationException/ObjectDisposedException is thrown on db connection failure
+        [Test]
+        public async Task GetAllItems_ThrowsException_DatabaseConnectionFailure()
+        {
+            // mock time
+            var mockTimeProvider = new MockTimeProvider
+            {
+                UtcNow = new DateTime(2025, 4, 16, 13, 0, 0) // Wednesday, 1 PM UTC
+            };
+
+            // mock database connection failure by disposing the context
+            _dataContext.Dispose();
+
+            // invoke the query handler
+            var handler = new GetAllItemsQueryHandler(_dataContext, mockTimeProvider);
+
+            // check if handler responds with InvalidOperationException/ObjectDisposedException on attempting to use a disposed DbContext
+            Assert.That(async () => await handler.Handle(new GetAllItemsQuery(), CancellationToken.None),
+                Throws.InstanceOf<InvalidOperationException>());
+        }
     }
 }

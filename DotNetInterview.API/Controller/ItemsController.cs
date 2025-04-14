@@ -38,14 +38,14 @@ namespace DotNetInterview.API.Controller
         // Get a single item
         [HttpGet("{id}")]
         public async Task<ActionResult<Item>> GetItemById(string id)
-        {           
-            try
+        {
+            if (!Guid.TryParse(id, out var guid))
             {
-                if (!Guid.TryParse(id, out var guid))
-                {
-                    return BadRequest("Invalid item Id. Please provide a valid GUID as the Id");
-                }
+                return BadRequest("Invalid item Id. Please provide a valid GUID as the Id");
+            }
 
+            try
+            {               
                 var item = await _mediator.Send(new GetItemByIdQuery(guid));
                 if (item == null)
                     return NotFound();  // 404 Not Found status code if the requested item could not be found in db
@@ -94,14 +94,25 @@ namespace DotNetInterview.API.Controller
 
         // Delete an item
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteItem(Guid id)
+        public async Task<IActionResult> DeleteItem(string id)
         {
-            var result = await _mediator.Send(new DeleteItemCommand(id));
+            if (!Guid.TryParse(id, out var guid))
+            {
+                return BadRequest("Invalid item Id. Please provide a valid GUID as the Id");
+            }
 
-            if (!result)
-                return NotFound();  //  404 Not Found status code if the item for deletion could not be found in db 
+            try
+            {                
+                var result = await _mediator.Send(new DeleteItemCommand(guid));
+                if (!result)
+                    return NotFound();  //  404 Not Found status code if the item for deletion could not be found in db 
 
-            return Ok(new { message = $"Item with ID {id} deleted successfully." });
+                return Ok(new { message = $"Item with ID {id} deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
         }
     }
 }

@@ -135,7 +135,7 @@ namespace DotNetInterview.Tests
         [Test]
         public async Task GetItemById_ReturnsOkResult_WithRequestedItem()
         {
-			// requested itemId and its variationIds
+			// specify requested itemId and its variationIds
 			var itemId = Guid.NewGuid();
 			var variation1Id = Guid.NewGuid();
 			var variation2Id = Guid.NewGuid();
@@ -189,7 +189,7 @@ namespace DotNetInterview.Tests
         [Test]
         public async Task GetItemById_ReturnsNotFound_WhenItemDoesNotExist()
         {
-            // requested itemId
+            // specify requested itemId
             var itemId = Guid.NewGuid();
 
             // mock IMediator to return requested item from handler
@@ -362,7 +362,6 @@ namespace DotNetInterview.Tests
             Assert.AreEqual("Invalid item. Please provide all required fields.", badRequestResult.Value);
         }
 
-
         // CreateItem API - Handles mediator exceptions with 500 status code
         [Test]
         public async Task CreateItem_HandlesMediatorException()
@@ -394,6 +393,95 @@ namespace DotNetInterview.Tests
             Assert.IsNotNull(objectResult);
             Assert.AreEqual(500, objectResult.StatusCode);
             Assert.AreEqual("An error occurred while processing your request.", objectResult.Value);
+        }
+
+        // DeleteItem API - Returns Ok if item to be deleted exists in db
+        [Test]
+        public async Task DeleteItem_ReturnsOk_ForExistingItem()
+        {
+            // specify item to be deleted
+            var itemId = Guid.NewGuid();
+
+            // mock IMediator to return true from handler after deleting existing item
+            _mediatorMock
+                .Setup(m => m.Send(It.Is<DeleteItemCommand>(cmd => cmd.Id == itemId), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
+
+            // invoke the DeleteItem API
+            var result = await _controller.DeleteItem(itemId.ToString());
+
+            // Assert
+            // check if response is OK with expected message
+            Assert.IsInstanceOf<OkObjectResult>(result);
+            var okResult = result as OkObjectResult;
+            Assert.IsNotNull(okResult);
+            Assert.AreEqual(200, okResult.StatusCode);
+            Assert.IsTrue(okResult.Value.ToString().Contains($"Item with ID {itemId} deleted successfully."));
+        }
+
+        // DeleteItem API - Returns Not Found if item to be deleted do not exist in db
+        [Test]
+        public async Task DeleteItem_ReturnsNotFound_WhenItemDoesNotExist()
+        {
+            // specify item to be deleted
+            var itemId = Guid.NewGuid();
+
+            // mock IMediator to return false from handler if item to be deleted do not exist in db
+            _mediatorMock
+                .Setup(m => m.Send(It.Is<DeleteItemCommand>(cmd => cmd.Id == itemId), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(false);
+
+            // invoke the DeleteItem API
+            var result = await _controller.DeleteItem(itemId.ToString());
+
+            // Assert
+            // check if response is Not Found
+            Assert.IsInstanceOf<NotFoundResult>(result);
+            var notFoundResult = result as NotFoundResult;
+            Assert.IsNotNull(notFoundResult);
+            Assert.AreEqual(404, notFoundResult.StatusCode);
+        }
+
+        // DeleteItem API - Handles mediator exceptions with 500 status code
+        [Test]
+        public async Task DeleteItem_HandlesMediatorException()
+        {
+            // specify item to be returned from handler
+            var itemId = Guid.NewGuid();
+
+            // mocks mediator to throw an exception
+            _mediatorMock
+                .Setup(m => m.Send(It.IsAny<DeleteItemCommand>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new Exception("Unexpected error"));
+
+            // invoke the DeleteItem API
+            var result = await _controller.DeleteItem(itemId.ToString());
+
+            // Assert
+            // check if API handles mediator exception with 500 error and message
+            Assert.IsInstanceOf<ObjectResult>(result);
+            var objectResult = result as ObjectResult;
+            Assert.IsNotNull(objectResult);
+            Assert.AreEqual(500, objectResult.StatusCode);
+            Assert.AreEqual("An error occurred while processing your request.", objectResult.Value);
+        }
+
+        // DeleteItem API - Returns Bad Request when invalid itemId provided
+        public async Task DeleteItem_ReturnsBadRequest_InvalidItemId()
+        {
+            // mock an invalid itemId. itemId is expected to be a valid GUID
+            var itemId = "invalid-guid";
+
+            // invoke the GetItemById API
+            var result = await _controller.DeleteItem(itemId);
+
+            // Assert
+            // check if response is Bad Request
+            Assert.IsInstanceOf<BadRequestObjectResult>(result);
+            var badRequestResult = result as BadRequestObjectResult;
+            Assert.IsNotNull(badRequestResult);
+            Assert.AreEqual(400, badRequestResult.StatusCode);
+            Assert.AreEqual("Invalid item Id. Please provide a valid GUID as the Id", badRequestResult.Value);
         }
     }
 }

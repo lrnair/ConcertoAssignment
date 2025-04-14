@@ -7,7 +7,7 @@ using DotNetInterview.Tests.TestUtilities;
 
 namespace DotNetInterview.Tests
 {
-    public class GetItemByIdTests
+    public class DeleteItemTests
     {
         private DataContext _dataContext;
         private SqliteConnection _connection;
@@ -38,9 +38,9 @@ namespace DotNetInterview.Tests
             _connection?.Dispose();
         }
 
-        // checks if item gets returned when item is found in db
+        // checks if true gets returned if item exists in db
         [Test]
-        public async Task GetItemById_ReturnsItem_WhenItemFound()
+        public async Task DeleteItem_ReturnsTrue_ForExistingItem()
         {
             // requested itemId
             var itemId = Guid.NewGuid();
@@ -63,40 +63,45 @@ namespace DotNetInterview.Tests
             _dataContext.SaveChanges();
 
             // invoke the query handler
-            var handler = new GetItemByIdQueryHandler(_dataContext);
-            var result = await handler.Handle(new GetItemByIdQuery(itemId), CancellationToken.None);
+            var handler = new DeleteItemQueryHandler(_dataContext);
+            var result = await handler.Handle(new DeleteItemQuery(itemId), CancellationToken.None);
 
             // Assert
+            //checks if item exists in db
+            Assert.IsNotNull(context.Items.Find(itemId));
+
             // check if item in response is not null 
             Assert.IsNotNull(result);
 
-            // verify item in response
-            Assert.AreEqual(itemId, result.Id);
-            Assert.AreEqual("Item 1", result.Name);
-
-            // check if handler correctly retrieves multiple variations of the item
-            Assert.AreEqual(2, result.Variations.Count);
+            // check if response is true
+            Assert.IsTrue(result);
         }
 
-        // checks if null gets returned when item is not found in db
+        // checks if false gets returned if item does not exist in db
         [Test]
-        public async Task GetItemById_ReturnsNull_WhenItemNotFound()
+        public async Task DeleteItem_ReturnsFalse_WhenItemNotFound()
         {
             // requested itemId
             var itemId = Guid.NewGuid();
 
             // invoke the query handler
-            var handler = new GetItemByIdQueryHandler(_dataContext);
-            var result = await handler.Handle(new GetItemByIdQuery(itemId), CancellationToken.None);
+            var handler = new DeleteItemQueryHandler(_dataContext);
+            var result = await handler.Handle(new GDeleteItemQuery(itemId), CancellationToken.None);
 
             // Assert
-            // check if item in response is null 
-            Assert.IsNull(result);
+            //checks if item exists in db
+            Assert.IsNull(context.Items.Find(itemId));
+
+            // check if item in response is not null 
+            Assert.IsNotNull(result);
+
+            // check if response is false
+            Assert.IsFalse(result);
         }
 
         // check if InvalidOperationException/ObjectDisposedException is thrown on db connection failure
         [Test]
-        public async Task GetItemById_ThrowsException_DatabaseConnectionFailure()
+        public async Task DeleteItem_ThrowsException_DatabaseConnectionFailure()
         {
             // requested itemId
             var itemId = Guid.NewGuid();
@@ -105,11 +110,11 @@ namespace DotNetInterview.Tests
             _dataContext.Dispose();
 
             // invoke the query handler
-            var handler = new GetItemByIdQueryHandler(_dataContext);
+            var handler = new DeleteItemQueryHandler(_dataContext);
 
             // Assert
             // check if handler responds with InvalidOperationException/ObjectDisposedException on attempting to use a disposed DbContext
-            Assert.That(async () => await handler.Handle(new GetItemByIdQuery(itemId), CancellationToken.None),
+            Assert.That(async () => await handler.Handle(new DeleteItemQuery(itemId), CancellationToken.None),
                 Throws.InstanceOf<InvalidOperationException>());
         }
     }

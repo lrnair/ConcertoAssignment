@@ -62,8 +62,20 @@ namespace DotNetInterview.API.Controller
         [HttpPost]
         public async Task<ActionResult<ItemDto>> CreateItem([FromBody] CreateItemCommand command)
         {
-            var item = await _mediator.Send(command);
-            return CreatedAtAction(nameof(GetItemById), new { id = item.Id }, item);    // returns created data from db with 201 Created status code
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Invalid item. Please provide all required fields.");
+            }
+
+            try
+            {
+                var item = await _mediator.Send(command);
+                return CreatedAtAction(nameof(GetItemById), new { id = item.Id }, item);    // returns created data from db with 201 Created status code
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
         }
 
         // Update an item

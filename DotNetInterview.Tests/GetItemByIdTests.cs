@@ -73,6 +73,7 @@ namespace DotNetInterview.Tests
             // verify item in response
             Assert.AreEqual(itemId, result.Id);
             Assert.AreEqual("Item 1", result.Name);
+
             // check if handler correctly retrieves multiple variations of the item
             Assert.AreEqual(2, result.Variations.Count);
         }
@@ -106,6 +107,7 @@ namespace DotNetInterview.Tests
             // invoke the query handler
             var handler = new GetItemByIdQueryHandler(_dataContext);
 
+            // Assert
             // check if handler responds with InvalidOperationException/ObjectDisposedException on attempting to use a disposed DbContext
             Assert.That(async () => await handler.Handle(new GetItemByIdQuery(itemId), CancellationToken.None),
                 Throws.InstanceOf<InvalidOperationException>());

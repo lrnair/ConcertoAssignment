@@ -16,6 +16,18 @@ namespace DotNetInterview.API.Command
 
         public async Task<ItemDto> Handle(CreateItemCommand request, CancellationToken cancellationToken)
         {
+            // validate variations in request
+            if (request.Variations != null)
+            {
+                foreach (var variation in request.Variations)
+                {
+                    if (variation.Quantity < 0)
+                    {
+                        throw new ArgumentException("Quantity must be zero or a positive number.");
+                    }
+                }
+            }
+
             var itemId = Guid.NewGuid();
 
             var item = new Item

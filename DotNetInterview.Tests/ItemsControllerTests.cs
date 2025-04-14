@@ -6,6 +6,7 @@ using DotNetInterview.API.Controller;
 using DotNetInterview.API.DTO;
 using DotNetInterview.API.Domain;
 using DotNetInterview.API.Query;
+using DotNetInterview.API.Command;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -116,7 +117,7 @@ namespace DotNetInterview.Tests
 			// mocks mediator to throw an exception
 			_mediatorMock
 				.Setup(m => m.Send(It.IsAny<GetAllItemsQuery>(), It.IsAny<CancellationToken>()))
-				.ThrowsAsync(new Exception("Mediator error"));
+				.ThrowsAsync(new Exception("Unexpected error"));
 
 			// invoke the GetAllItems API
 			var result = await _controller.GetAllItems();
@@ -209,7 +210,7 @@ namespace DotNetInterview.Tests
 
         // GetItemById API - Handles mediator exceptions with 500 status code
         [Test]
-        public async Task GetItemById_ReturnsInternalServerError_OnException()
+        public async Task GetItemById_HandlesMediatorException()
         {
             // specify item to be returned from handler
             var itemId = Guid.NewGuid();
@@ -232,7 +233,7 @@ namespace DotNetInterview.Tests
         }
 
         // GetItemById API - Returns Bad Request when invalid itemId provided
-        public async Task GetItemById_InvalidItemId_ReturnsBadRequest()
+        public async Task GetItemById_ReturnsBadRequest_InvalidItemId()
         {
             // mock an invalid itemId. itemId is expected to be a valid GUID
             var itemId = "invalid-guid";
@@ -249,5 +250,150 @@ namespace DotNetInterview.Tests
             Assert.AreEqual("Invalid item Id. Please provide a valid GUID as the Id", badRequestResult.Value);
         }
 
+        // CreateItem API - Returns 201 Created with the correct item details from db
+        [Test]
+        public async Task CreateItem_ReturnsCreatedItem_ValidRequest()
+        {
+            // specify item to be created
+            var item = new CreateItemCommand
+            {
+                Reference = "REF001",
+                Name = "Test Item",
+                Price = 99.99m,
+                Variations = new List<VariationDto>
+                {
+                    new VariationDto { Size = "Medium", Quantity = 10 }
+                }
+            };
+
+            // mock the correct item details to be returned from handler
+            var expectedItem = new ItemDto
+            {
+                Id = Guid.NewGuid(),
+                Reference = item.Reference,
+                Name = item.Name,
+                Price = item.Price,
+                Variations = item.Variations
+            };
+
+            // mock IMediator to invoke CreateItem API to create the item requested and return correct item details from db
+            _mediatorMock
+                .Setup(m => m.Send(It.IsAny<CreateItemCommand>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(expectedItem);
+            var result = await _controller.CreateItem(item);
+
+            // Assert
+            // check if response is 201 Created
+            Assert.IsInstanceOf<CreatedAtActionResult>(result.Result);
+            var createdAtResult = result.Result as CreatedAtActionResult;
+            Assert.IsNotNull(createdAtResult);
+            Assert.AreEqual(201, createdAtResult.StatusCode);
+
+            // verify action invoked and the returned item details
+            Assert.AreEqual(expectedItem, createdAtResult.Value);
+            Assert.AreEqual("GetItemById", createdAtResult.ActionName);
+            Assert.AreEqual(expectedItem.Id, createdAtResult.RouteValues["id"]);
+        }
+
+        // CreateItem API - Returns 201 Created with the correct item details - no variations from db
+        [Test]
+        public async Task CreateItem_ReturnsCreatedItem_ValidRequestWithoutVariations()
+        {
+            // specify item to be created - without any variations
+            var item = new CreateItemCommand
+            {
+                Reference = "REF001",
+                Name = "Test Item",
+                Price = 99.99m
+            };
+
+            // mock the correct item details to be returned from handler
+            var expectedItem = new ItemDto
+            {
+                Id = Guid.NewGuid(),
+                Reference = item.Reference,
+                Name = item.Name,
+                Price = item.Price,
+                Variations = new List<VariationDto>()
+            };
+
+            // mock IMediator to invoke CreateItem API to create the item requested and return correct item details from db
+            _mediatorMock
+                .Setup(m => m.Send(It.IsAny<CreateItemCommand>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(expectedItem);
+            var result = await _controller.CreateItem(item);
+
+            // Assert
+            // check if response is 201 Created
+            Assert.IsInstanceOf<CreatedAtActionResult>(result.Result);
+            var createdAtResult = result.Result as CreatedAtActionResult;
+            Assert.IsNotNull(createdAtResult);
+            Assert.AreEqual(201, createdAtResult.StatusCode);
+
+            // verify action invoked and the returned item details
+            Assert.AreEqual(expectedItem, createdAtResult.Value);
+            Assert.AreEqual("GetItemById", createdAtResult.ActionName);
+            Assert.AreEqual(expectedItem.Id, createdAtResult.RouteValues["id"]);
+        }
+
+        // CreateItem API - Returns Bad Request for invalid item - with required fields missing
+        [Test]
+        public async Task CreateItem_ReturnsBadRequest_InvalidModelState()
+        {
+            // specify item to be created - with required fields missing
+            var item = new CreateItemCommand
+            {
+                Name = "Test Item",
+                Price = 99.99m
+            };
+
+            // mock controller to throw missing field error
+            _controller.ModelState.AddModelError("Reference", "Reference is required");
+
+            // invoke the CreateItem API
+            var result = await _controller.CreateItem(item);
+
+            // Assert
+            // check if response is Bad Request
+            Assert.IsInstanceOf<BadRequestObjectResult>(result.Result);
+            var badRequestResult = result.Result as BadRequestObjectResult;
+            Assert.IsNotNull(badRequestResult);
+            Assert.AreEqual(400, badRequestResult.StatusCode);
+            Assert.AreEqual("Invalid item. Please provide all required fields.", badRequestResult.Value);
+        }
+
+
+        // CreateItem API - Handles mediator exceptions with 500 status code
+        [Test]
+        public async Task CreateItem_HandlesMediatorException()
+        {
+            // specify item to be created
+            var item = new CreateItemCommand
+            {
+                Reference = "REF001",
+                Name = "Test Item",
+                Price = 99.99m,
+                Variations = new List<VariationDto>
+                {
+                    new VariationDto { Size = "Medium", Quantity = 10 }
+                }
+            };
+
+            // mocks mediator to throw an exception
+            _mediatorMock
+                .Setup(m => m.Send(It.IsAny<CreateItemCommand>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new Exception("Unexpected error"));
+
+            // invoke the CreateItem API
+            var result = await _controller.CreateItem(item);
+
+            // Assert
+            // check if API handles mediator exception with 500 error and message
+            Assert.IsInstanceOf<ObjectResult>(result.Result);
+            var objectResult = result.Result as ObjectResult;
+            Assert.IsNotNull(objectResult);
+            Assert.AreEqual(500, objectResult.StatusCode);
+            Assert.AreEqual("An error occurred while processing your request.", objectResult.Value);
+        }
     }
 }

@@ -70,7 +70,12 @@ namespace DotNetInterview.API.Controller
             try
             {
                 var item = await _mediator.Send(command);
-                return CreatedAtAction(nameof(GetItemById), new { id = item.Id }, item);    // returns created data from db with 201 Created status code
+                var response = new ResponseDto
+                {
+                    Id = item.Id,
+                    Message = $"Item with ID {item.Id} created successfully."
+                };
+                return CreatedAtAction(nameof(GetItemById), new { id = item.Id }, response);    // returns response with 201 Created status code
             }
             catch (Exception ex)
             {

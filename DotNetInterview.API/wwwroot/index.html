@@ -10,7 +10,7 @@
 <body>
     <div class="header-row">
         <h1>Stock List</h1>
-        <a href="#create" class="new-item-btn">Create New Item (+)</a>
+        <a href="#create" class="new-item-btn" id="create-item-btn">Create New Item (+)</a>
     </div>
 
     <table class="stock-table">
@@ -55,7 +55,6 @@
                 </tr>
             </table>
         </div>
-
         <div class="view-variations">
             <h3>Variations:</h3>
             <table class="info-table variations-table" id="view-variations-table">
@@ -81,6 +80,8 @@
                 <input type="number" id="price" name="price" step="0.01" required>
             </div>
 
+            <h3>Variations:</h3>
+
             <div class="variation-controls">
                 <button type="button" id="add-variation-btn">+ Variation</button>
                 <button type="button" id="remove-variation-btn">- Variation</button>
@@ -88,12 +89,10 @@
 
             <div id="variation-section" style="display: none;">
                 <div id="variation-rows">
-                    <!-- rows will be added here -->
                 </div>
-
             </div>
 
-            <button type="submit" class="submit-btn">Add</button>
+            <button type="submit" class="submit-btn" id="create-submit-btn">Create Item</button>
         </form>
     </div>
 
@@ -133,7 +132,7 @@
 
 
 
-    <script>
+    <!--<script>
         function showViewItem(event) {
             event.preventDefault();
 
@@ -146,9 +145,9 @@
             viewItemSection.scrollIntoView({ behavior: 'smooth' });
         }
 
-    </script>
+    </script>-->
 
-    <script>
+    <!--<script>
         const addVariationBtn = document.getElementById('add-variation-btn');
         const removeVariationBtn = document.getElementById('remove-variation-btn');
         const variationSection = document.getElementById('variation-section');
@@ -185,11 +184,11 @@
                 variationSection.style.display = 'none';
             }
         });
-    </script>
+    </script>-->
 
 
 
-    <script>
+    <!--<script>
         const createFormSection = document.getElementById('create-item-section');
         const viewItemSection = document.getElementById('view-item-section');
 
@@ -217,7 +216,7 @@
             </div>
           `;
         });
-    </script>
+    </script>-->
 
 
     <script>

@@ -289,10 +289,15 @@ namespace DotNetInterview.Tests
             Assert.IsNotNull(createdAtResult);
             Assert.AreEqual(201, createdAtResult.StatusCode);
 
-            // verify action invoked and the created item details
-            Assert.AreEqual(createdItem, createdAtResult.Value);
+            // verify action invoked
             Assert.AreEqual("GetItemById", createdAtResult.ActionName);
             Assert.AreEqual(createdItem.Id, createdAtResult.RouteValues["id"]);
+
+            // verify the response body
+            var value = createdAtResult.Value as ResponseDto;
+            Assert.IsNotNull(value);
+            Assert.AreEqual(createdItem.Id, value.Id);
+            Assert.AreEqual($"Item with ID {createdItem.Id} created successfully.", value.Message);
         }
 
         // CreateItem API - Returns 201 Created with the correct item details from db - no variations
@@ -330,10 +335,15 @@ namespace DotNetInterview.Tests
             Assert.IsNotNull(createdAtResult);
             Assert.AreEqual(201, createdAtResult.StatusCode);
 
-            // verify action invoked and the created item details
-            Assert.AreEqual(createdItem, createdAtResult.Value);
+            // verify action invoked
             Assert.AreEqual("GetItemById", createdAtResult.ActionName);
             Assert.AreEqual(createdItem.Id, createdAtResult.RouteValues["id"]);
+
+            // verify the response body
+            var value = createdAtResult.Value as ResponseDto;
+            Assert.IsNotNull(value);
+            Assert.AreEqual(createdItem.Id, value.Id);
+            Assert.AreEqual($"Item with ID {createdItem.Id} created successfully.", value.Message);
         }
 
         // CreateItem API - Returns Bad Request for invalid item - with required fields missing

@@ -37,4 +37,10 @@ if (app.Environment.IsDevelopment())
 
 app.MapControllers();
 
+// Enables static file serving from wwwroot
+app.UseStaticFiles();
+
+// Set default redirection to index.html
+app.MapFallbackToFile("index.html");
+
 app.Run();

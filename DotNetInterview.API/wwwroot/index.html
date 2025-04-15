@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stock List</title>
+    <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+    <div class="header-row">
+        <h1>Stock List</h1>
+        <a href="#create" class="new-item-btn">Create New Item (+)</a>
+    </div>
+
+    <table class="stock-table">
+        <thead>
+            <tr>
+                <th>Ref</th>
+                <th>Item Name</th>
+                <th>Original Price</th>
+                <th>Current Price</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>A123</td>
+                <td>Shorts</td>
+                <td>£35.00</td>
+                <td>£31.50 (10% off)</td>
+                <td>In Stock (10)</td>
+                <td>
+                    <a href="#" onclick="showViewItem(event)">View</a> |
+                    <a href="#edit" onclick="showEditSection(event)">Edit</a> |
+                    <a href="#">Delete</a>
+                </td>
+            </tr>
+            <tr>
+                <td>B456</td>
+                <td>Tie</td>
+                <td>£15.00</td>
+                <td>-</td>
+                <td>Sold Out</td>
+                <td>
+                    <a href="#" onclick="showViewItem(event)">View</a> |
+                    <a href="#edit" onclick="showEditSection(event)">Edit</a> |
+                    <a href="#">Delete</a>
+                </td>
+            </tr>
+            <tr>
+                <td>C789</td>
+                <td>Shoes</td>
+                <td>£70.00</td>
+                <td>£56.00 (20% off)</td>
+                <td>In Stock (15)</td>
+                <td>
+                    <a href="#" onclick="showViewItem(event)">View</a> |
+                    <a href="#edit" onclick="showEditSection(event)">Edit</a> |
+                    <a href="#">Delete</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr />
+
+    <div class="view-item" id="view-item-section" style="display: none;">
+        <div class="view-header">
+            <h2>View Item</h2>
+            <button class="edit-btn">Edit</button>
+        </div>
+        <div class="view-details">
+            <table class="info-table">
+                <tr>
+                    <td><strong>ID:</strong></td>
+                    <td>ce56b68c-4453-4842-84b1-69870f02db03</td>
+                </tr>
+                <tr>
+                    <td><strong>Reference:</strong></td>
+                    <td>A123</td>
+                </tr>
+                <tr>
+                    <td><strong>Name:</strong></td>
+                    <td>Shorts</td>
+                </tr>
+                <tr>
+                    <td><strong>Price:</strong></td>
+                    <td>£35.00</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="view-variations">
+            <h3>Variations:</h3>
+            <table class="info-table variations-table">
+                <tr>
+                    <td><strong>Size:</strong></td>
+                    <td>Small</td>
+                    <td><strong>Quantity:</strong></td>
+                    <td>7</td>
+                </tr>
+                <tr>
+                    <td><strong>Size:</strong></td>
+                    <td>Medium</td>
+                    <td><strong>Quantity:</strong></td>
+                    <td>0</td>
+                </tr>
+                <tr>
+                    <td><strong>Size:</strong></td>
+                    <td>Large</td>
+                    <td><strong>Quantity:</strong></td>
+                    <td>3</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div id="create-form-section" style="display: none;">
+        <h2>Create New Item</h2>
+        <form id="create-form">
+            <div class="form-group">
+                <label for="reference">Reference:</label>
+                <input type="text" id="reference" name="reference" required>
+            </div>
+
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="price">Price:</label>
+                <input type="number" id="price" name="price" step="0.01" required>
+            </div>
+
+            <div class="variation-controls">
+                <button type="button" id="add-variation-btn">+ Variation</button>
+                <button type="button" id="remove-variation-btn">- Variation</button>
+            </div>
+
+            <div id="variation-section" style="display: none;">
+                <div id="variation-rows">
+                    <!-- rows will be added here -->
+                </div>
+
+            </div>
+
+            <button type="submit" class="submit-btn">Add</button>
+        </form>
+    </div>
+
+    <div id="edit-item-section" style="display: none;">
+        <h2>Edit Item</h2>
+        <form id="edit-form">
+            <label>ID:</label>
+            <input type="text" id="edit-id" name="id" disabled>
+
+            <label>Reference:</label>
+            <input type="text" id="edit-reference" name="reference" required>
+
+            <label>Name:</label>
+            <input type="text" id="edit-name" name="name" required>
+
+            <label>Price:</label>
+            <input type="number" id="edit-price" name="price" required step="0.01">
+
+            <h3>Variations:</h3>
+            <div id="edit-variation-rows">
+                <div class="variation-row">
+                    <label>Size:</label>
+                    <input type="text" name="edit-size[]" required>
+                    <label>Quantity:</label>
+                    <input type="number" name="edit-quantity[]" min="0" required>
+                </div>
+            </div>
+
+            <div class="variation-controls">
+                <button type="button" id="edit-add-row-btn">+ Variation</button>
+                <button type="button" id="edit-remove-row-btn">- Variation</button>
+            </div>
+
+            <button type="submit" class="submit-btn">Update</button>
+        </form>
+    </div>
+
+
+
+    <script>
+    function showViewItem(event) {
+      event.preventDefault();
+
+      // Hide everything in the second half before showing View
+      viewItemSection.style.display = 'none';
+      createFormSection.style.display = 'none';
+
+      // Then show View
+      viewItemSection.style.display = 'block';
+      viewItemSection.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    </script>
+
+    <script>
+    const addVariationBtn = document.getElementById('add-variation-btn');
+    const removeVariationBtn = document.getElementById('remove-variation-btn');
+    const variationSection = document.getElementById('variation-section');
+    const variationRows = document.getElementById('variation-rows');
+
+    addVariationBtn.addEventListener('click', () => {
+      const isHidden = window.getComputedStyle(variationSection).display === 'none';
+
+      // First click: show the section and add 1 row
+      if (isHidden) {
+        variationSection.style.display = 'block';
+      }
+
+      // Add new row
+      const newRow = document.createElement('div');
+      newRow.classList.add('variation-row');
+      newRow.innerHTML = `
+        <label>Size:</label>
+        <input type="text" name="size[]" required>
+        <label>Quantity:</label>
+        <input type="number" name="quantity[]" min="0" required>
+      `;
+      variationRows.appendChild(newRow);
+    });
+
+    removeVariationBtn.addEventListener('click', () => {
+      const rows = variationRows.getElementsByClassName('variation-row');
+      if (rows.length > 0) {
+        variationRows.removeChild(rows[rows.length - 1]);
+      }
+
+      // If no rows left, hide the section
+      if (rows.length === 0) {
+        variationSection.style.display = 'none';
+      }
+    });
+    </script>
+
+
+
+    <script>
+    const createFormSection = document.getElementById('create-form-section');
+    const viewItemSection = document.getElementById('view-item-section');
+
+    // Show the Create form and hide the View Item section
+    document.querySelectorAll('a[href="#create"]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        createFormSection.style.display = 'block';
+        viewItemSection.style.display = 'none';
+        createFormSection.scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+
+    // Hide the form after Add button is clicked
+    document.getElementById('create-form').addEventListener('submit', (e) => {
+      e.preventDefault(); // You can remove this if you're submitting to a backend
+      createFormSection.style.display = 'none';
+      document.getElementById('variation-section').style.display = 'none';
+      document.getElementById('variation-rows').innerHTML = `
+        <div class="variation-row">
+          <label>Size:</label>
+          <input type="text" name="size[]" required>
+          <label>Quantity:</label>
+          <input type="number" name="quantity[]" min="0" required>
+        </div>
+      `;
+    });
+    </script>
+
+
+    <script>
+    const editSection = document.getElementById('edit-item-section');
+    const editVariationRows = document.getElementById('edit-variation-rows');
+    const editAddRowBtn = document.getElementById('edit-add-row-btn');
+    const editRemoveRowBtn = document.getElementById('edit-remove-row-btn');
+
+    function showEditSection(event) {
+      event.preventDefault();
+
+      // Clear other sections
+      viewItemSection.style.display = 'none';
+      createFormSection.style.display = 'none';
+      editSection.style.display = 'block';
+      editSection.scrollIntoView({ behavior: 'smooth' });
+
+      // You can populate the fields dynamically here if needed
+    }
+
+    // Hook up all edit buttons
+    document.querySelectorAll('a[href="#edit"]').forEach(link => {
+      link.addEventListener('click', showEditSection);
+    });
+
+    // Add variation row
+    editAddRowBtn.addEventListener('click', () => {
+      const newRow = document.createElement('div');
+      newRow.classList.add('variation-row');
+      newRow.innerHTML = `
+        <label>Size:</label>
+        <input type="text" name="edit-size[]" required>
+        <label>Quantity:</label>
+        <input type="number" name="edit-quantity[]" min="0" required>
+      `;
+      editVariationRows.appendChild(newRow);
+    });
+
+    // Remove variation row
+    editRemoveRowBtn.addEventListener('click', () => {
+      const rows = editVariationRows.getElementsByClassName('variation-row');
+      if (rows.length > 1) {
+        editVariationRows.removeChild(rows[rows.length - 1]);
+      }
+    });
+
+    // Handle update
+    document.getElementById('edit-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      alert("Item updated! (you can replace this with actual logic)");
+      editSection.style.display = 'none';
+    });
+    </script>
+
+
+
+</body>
+</html>

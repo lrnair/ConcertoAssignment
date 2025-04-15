@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const variationRows = document.getElementById('variation-rows');
     const createForm = document.getElementById('create-form');
     const createItemSubmitBtn = document.getElementById('create-submit-btn');
+    const popupOkBtn = document.getElementById('popup-ok-btn');
 
     // Hide all sections on page load
     viewItemSection.style.display = 'none';
@@ -58,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Load stock table
-    function loadStockTable() {
+    function loadStockTable(itemId = null) {
         fetch('/api/Items')
             .then(response => {
                 if (!response.ok) {
@@ -88,17 +89,29 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${discount}</td>
                     <td>${status}</td>
                     <td>
-                        <a href="#" onclick="showViewItem(event, '${item.id}')">View</a> |
+                        <a href="#" onclick="viewSelectedItem(event, '${item.id}')">View</a> |
                         <a href="#edit" onclick="showEditSection(event)">Edit</a> |
-                        <a href="#">Delete</a>
+                        <a href="#" onclick="deleteSelectedItem(event, '${item.id}')">Delete</a>
                     </td>
                 `;
 
-                    tbody.appendChild(tr);
+                // Highlight the row if it matches the passed itemId
+                if (itemId && item.id === itemId) {
+                    tr.classList.add('highlight-row');
+
+                    setTimeout(() => {
+                        tr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 100);
+                }
+
+                tbody.appendChild(tr);
                 });
 
-                // Automatically load the first item's details
-                if (data.length > 0) {
+                if (itemId) {
+                    // show details of highlighted item
+                    loadItemDetails(itemId);
+                } else if (data.length > 0) {
+                    // show the details of first item if no higlight
                     loadItemDetails(data[0].id);
                 }
             })
@@ -107,10 +120,15 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
 
-    window.showViewItem = function (event, id) {
+    window.viewSelectedItem = function (event, itemId) {
         event.preventDefault();
         createItemSection.style.display = 'none';
-        loadItemDetails(id);
+        loadItemDetails(itemId);
+    };
+
+    window.deleteSelectedItem = function (event, itemId) {
+        event.preventDefault();
+        deleteItem(itemId);
     };
 
     // 'Create New Item' button click
@@ -165,6 +183,32 @@ document.addEventListener('DOMContentLoaded', () => {
         // Hide the section when no variation rows are left
         if (rows.length === 0) {
             variationSection.style.display = 'none';
+        }
+    });
+
+    // show popup
+    function showPopup(message, itemId = null) {
+        document.getElementById('popup-message').textContent = message;
+
+        // Store the ID in the button's dataset
+        const okBtn = document.getElementById('popup-ok-btn');
+        okBtn.dataset.itemId = itemId || '';
+
+        document.getElementById('popup').style.display = 'flex';
+    }
+
+    // Popup OK button click
+    popupOkBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('popup').style.display = 'none';
+
+        const itemId = e.target.dataset.itemId;
+
+        // Reload the stock table and display the item's details
+        if (itemId) {
+            loadStockTable(itemId);
+        } else {
+            loadStockTable(); // fallback if no item id
         }
     });
 
@@ -223,11 +267,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('variation-section').style.display = 'none';
                 document.getElementById('variation-rows').innerHTML = '';
 
-                // Reload the stock table and display the new item's details
-                loadStockTable(newItemId);
+                showPopup(data.message || 'Item created successfully!', newItemId);
             })
             .catch(error => {
                 console.error('Error creating item:', error);
             });
     });
+
+    function deleteItem(itemId) {
+        fetch(`/api/Items/${itemId}`, {
+            method: 'DELETE'
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Failed to delete item.`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                const deletedItemId = data.id;
+                showPopup(data.message || 'Item deleted successfully!', deletedItemId);
+            })
+            .catch(error => {
+                console.error("Error deleting item:", error);
+            });
+    }
+
 });

@@ -13,27 +13,29 @@
         <a href="#create" class="new-item-btn" id="create-item-btn">Create New Item (+)</a>
     </div>
 
-    <table class="stock-table">
-        <thead>
-            <tr>
-                <th>Ref</th>
-                <th>Item Name</th>
-                <th>Original Price</th>
-                <th>Current Price</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody id="stock-table-body">
-        </tbody>
-    </table>
+    <div class="table-container">
+        <table class="stock-table">
+            <thead>
+                <tr>
+                    <th>Ref</th>
+                    <th>Item Name</th>
+                    <th>Original Price</th>
+                    <th>Current Price</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="stock-table-body">
+            </tbody>
+        </table>
+    </div>
 
     <hr />
 
     <div class="view-item" id="view-item-section" style="display: none;">
         <div class="view-header">
             <h2>View Item</h2>
-            <button class="edit-btn">Edit</button>
+            <button class="edit-btn" id="edit-item-btn">Edit</button>
         </div>
         <div class="view-details">
             <table class="info-table" id="view-item-table">
@@ -130,7 +132,12 @@
         </form>
     </div>
 
-
+    <div id="popup" class="popup-overlay">
+        <div class="popup-content">
+            <p id="popup-message"></p>
+            <button id="popup-ok-btn">OK</button>
+        </div>
+    </div>
 
     <!--<script>
         function showViewItem(event) {

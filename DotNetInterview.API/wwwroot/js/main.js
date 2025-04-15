@@ -4,13 +4,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const editItemSection = document.getElementById('edit-item-section'); 
     const viewVariationsTable = document.getElementById('view-variations-table');
     const createItemBtn = document.getElementById('create-item-btn');
-    const addVariationBtn = document.getElementById('add-variation-btn');
-    const removeVariationBtn = document.getElementById('remove-variation-btn');
+    const createAddVariationBtn = document.getElementById('create-add-variation-btn');
+    const createRemoveVariationBtn = document.getElementById('create-remove-variation-btn');
     const variationSection = document.getElementById('variation-section');
-    const variationRows = document.getElementById('variation-rows');
+    const createVariationRows = document.getElementById('create-variation-rows');
     const createForm = document.getElementById('create-form');
     const createItemSubmitBtn = document.getElementById('create-submit-btn');
     const popupOkBtn = document.getElementById('popup-ok-btn');
+    const editItemBtn = document.getElementById('edit-item-btn');
+    const editForm = document.getElementById('edit-form');
+    const editAddVariationBtn = document.getElementById('edit-add-row-btn');
+    const editRemoveVariationBtn = document.getElementById('edit-remove-row-btn');
+    const editVariationRows = document.getElementById('edit-variation-rows');
+    const editItemSubmitBtn = document.getElementById('edit-submit-btn');
 
     // Hide all sections on page load
     viewItemSection.style.display = 'none';
@@ -21,8 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
     loadStockTable()
 
     // View Item
-    function loadItemDetails(id) {
-        fetch(`/api/Items/${id}`)
+    function loadViewItemDetails(itemId) {
+        fetch(`/api/Items/${itemId}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error("Failed to load item details.");
@@ -32,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(item => {
                 // Bind properties in view-item-table
                 document.getElementById('item-id').textContent = item.id;
+                editItemBtn.dataset.itemId = item.id;   // Store the item id in the button's dataset
                 document.getElementById('item-reference').textContent = item.reference;
                 document.getElementById('item-name').textContent = item.name;
                 document.getElementById('item-price').textContent = `£${item.price.toFixed(2)}`;
@@ -90,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${status}</td>
                     <td>
                         <a href="#" onclick="viewSelectedItem(event, '${item.id}')">View</a> |
-                        <a href="#edit" onclick="showEditSection(event)">Edit</a> |
+                        <a href="#edit" onclick="editSelectedItem(event, '${item.id}')">Edit</a> |
                         <a href="#" onclick="deleteSelectedItem(event, '${item.id}')">Delete</a>
                     </td>
                 `;
@@ -109,27 +116,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (itemId) {
                     // show details of highlighted item
-                    loadItemDetails(itemId);
+                    loadViewItemDetails(itemId);
                 } else if (data.length > 0) {
                     // show the details of first item if no higlight
-                    loadItemDetails(data[0].id);
+                    loadViewItemDetails(data[0].id);
                 }
             })
             .catch(error => {
                 console.error("Error fetching items:", error);
             });
     }
-
-    window.viewSelectedItem = function (event, itemId) {
-        event.preventDefault();
-        createItemSection.style.display = 'none';
-        loadItemDetails(itemId);
-    };
-
-    window.deleteSelectedItem = function (event, itemId) {
-        event.preventDefault();
-        deleteItem(itemId);
-    };
 
     // 'Create New Item' button click
     createItemBtn.addEventListener('click', (e) => {
@@ -148,8 +144,8 @@ document.addEventListener('DOMContentLoaded', () => {
         editItemSection.style.display = 'none';
     });
 
-    // '+ Variation' button click
-    addVariationBtn.addEventListener('click', (e) => {
+    // Create '+ Variation' button click
+    createAddVariationBtn.addEventListener('click', (e) => {
         e.preventDefault();
 
         const isHidden = window.getComputedStyle(variationSection).display === 'none';
@@ -170,8 +166,8 @@ document.addEventListener('DOMContentLoaded', () => {
         variationRows.appendChild(newRow);
     });
 
-    // '- Variation' button click
-    removeVariationBtn.addEventListener('click', (e) => {
+    // Create '- Variation' button click
+    createRemoveVariationBtn.addEventListener('click', (e) => {
         e.preventDefault();
 
         const rows = variationRows.getElementsByClassName('variation-row');
@@ -186,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // show popup
+    // Show popup
     function showPopup(message, itemId = null) {
         document.getElementById('popup-message').textContent = message;
 
@@ -217,9 +213,9 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
 
         // Gather form data
-        const reference = document.getElementById('reference').value;
-        const name = document.getElementById('name').value;
-        const price = parseFloat(document.getElementById('price').value);
+        const reference = document.getElementById('create-reference').value;
+        const name = document.getElementById('create-name').value;
+        const price = parseFloat(document.getElementById('create-price').value);
 
         // Gather variations
         const sizeInputs = document.querySelectorAll('input[name="size[]"]');
@@ -257,24 +253,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 return response.json();
             })
             .then(data => {
-                const newItemId = data.id;
+                const createdItemId = data.id;
 
                 // Hide the create form
                 createItemSection.style.display = 'none';
 
                 // Clear the form fields
-                document.getElementById('create-form').reset();
-                document.getElementById('variation-section').style.display = 'none';
-                document.getElementById('variation-rows').innerHTML = '';
+                createForm.reset();
+                createVariationRows.innerHTML = '';
 
-                showPopup(data.message || 'Item created successfully!', newItemId);
+                showPopup(data.message || 'Item created successfully!', createdItemId);
             })
             .catch(error => {
                 console.error('Error creating item:', error);
             });
     });
 
+    // Delete Item
     function deleteItem(itemId) {
+        // Send DELETE request to delete item
         fetch(`/api/Items/${itemId}`, {
             method: 'DELETE'
         })
@@ -293,4 +290,168 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
 
+    // Edit '- Variation' button click
+    editAddVariationBtn.addEventListener('click', () => {
+        const newRow = document.createElement('div');
+        newRow.classList.add('variation-row');
+        newRow.innerHTML = `
+            <label>Size:</label>
+            <input type="text" name="edit-size[]" required>
+            <label>Quantity:</label>
+            <input type="number" name="edit-quantity[]" min="0" required>
+          `;
+        editVariationRows.appendChild(newRow);
+    });
+
+    // Edit '- Variation' button click
+    editRemoveVariationBtn.addEventListener('click', () => {
+        const rows = editVariationRows.getElementsByClassName('variation-row');
+        if (rows.length > 0) {
+            editVariationRows.removeChild(rows[rows.length - 1]);
+        }
+    });
+
+    // Edit Item
+    editItemSubmitBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        // Gather form data
+        const id = document.getElementById('edit-id').value;
+        const reference = document.getElementById('edit-reference').value;
+        const name = document.getElementById('edit-name').value;
+        const price = parseFloat(document.getElementById('edit-price').value);
+
+        // Gather variations
+        const sizeInputs = document.querySelectorAll('input[name="size[]"]');
+        const quantityInputs = document.querySelectorAll('input[name="quantity[]"]');
+        const variations = [];
+
+        for (let i = 0; i < sizeInputs.length; i++) {
+            const size = sizeInputs[i].value;
+            const quantity = parseInt(quantityInputs[i].value);
+            if (size && !isNaN(quantity)) {
+                variations.push({ size, quantity });
+            }
+        }
+
+        // Prepare data payload
+        const payload = {
+            id,
+            reference,
+            name,
+            price,
+            variations
+        };
+
+        // Send PUT request to edit item
+        fetch(`/api/Items/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to create item.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const updatedItemId = data.id;
+
+                // Hide the edit form
+                editItemSection.style.display = 'none';
+
+                // Clear the form fields
+                editForm.reset();
+                editVariationRows.innerHTML = '';
+
+                showPopup(data.message || 'Item updated successfully!', updatedItemId);
+            })
+            .catch(error => {
+                console.error('Error creating item:', error);
+            });
+    });
+
+    // Load edit form
+    function loadEditItemDetails(itemId) {
+        fetch(`/api/Items/${itemId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to load item details.");
+                }
+                return response.json();
+            })
+            .then(item => {
+                // Bind properties in edit-form
+                document.getElementById('edit-id').value = item.id;
+                document.getElementById('edit-reference').value = item.reference;
+                document.getElementById('edit-name').value = item.name;
+                document.getElementById('edit-price').value = item.price.toFixed(2);
+
+                // Clear existing variation rows
+                const variationContainer = document.getElementById('edit-variation-rows');
+                variationContainer.innerHTML = '';
+
+                // Add variations
+                item.variations.forEach(variation => {
+                    const row = document.createElement('div');
+                    row.classList.add('variation-row');
+                    row.innerHTML = `
+                    <label>Size:</label>
+                    <input type="text" name="edit-size[]" value="${variation.size}" required>
+                    <label>Quantity:</label>
+                    <input type="number" name="edit-quantity[]" value="${variation.quantity}" min="0" required>
+                `;
+                    variationContainer.appendChild(row);
+                });
+
+                // Show the edit item section
+                editItemSection.style.display = 'block';
+                editItemSection.scrollIntoView({ behavior: 'smooth' });
+            })
+            .catch(error => {
+                console.error("Error fetching item details:", error);
+            });
+    }
+
+    // 'Edit' button click
+    editItemBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        editForm.reset();
+
+        // show only create item section hiding others
+        editItemSection.style.display = 'block';
+        editItemSection.scrollIntoView({ behavior: 'smooth' });
+        viewItemSection.style.display = 'none';
+        createItemSection.style.display = 'none';
+
+        const itemId = e.target.dataset.itemId;
+        loadEditItemDetails(itemId);
+    });
+
+    window.viewSelectedItem = function (event, itemId) {
+        event.preventDefault();
+        createItemSection.style.display = 'none';
+        editItemSection.style.display = 'none';
+        loadViewItemDetails(itemId);
+    };
+
+    window.deleteSelectedItem = function (event, itemId) {
+        event.preventDefault();
+        deleteItem(itemId);
+    };
+
+    window.editSelectedItem = function (event, itemId) {
+        event.preventDefault();
+        editForm.reset();
+
+        // show only create item section hiding others
+        editItemSection.style.display = 'block';
+        editItemSection.scrollIntoView({ behavior: 'smooth' });
+        createItemSection.style.display = 'none';
+        viewItemSection.style.display = 'none';
+        loadEditItemDetails(itemId);
+    };
 });

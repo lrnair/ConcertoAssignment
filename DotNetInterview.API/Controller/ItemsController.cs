@@ -83,13 +83,27 @@ namespace DotNetInterview.API.Controller
         public async Task<IActionResult> UpdateItem(Guid id, [FromBody] UpdateItemCommand command)
         {
             if (id != command.Id)
+            { 
                 return BadRequest("Id in URL does not match Id in body.");
+            }
 
-            var item = await _mediator.Send(command);
-            if (item == null)
-                return NotFound();  // 404 Not Found status code if the item under update could not be found in db 
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Invalid item. Please provide all required fields.");
+            }
 
-            return Ok(item);
+            try
+            {
+                var item = await _mediator.Send(command);
+                if (item == null)
+                    return NotFound();  // 404 Not Found status code if the item under update could not be found in db 
+
+                return Ok(item);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
         }
 
         // Delete an item

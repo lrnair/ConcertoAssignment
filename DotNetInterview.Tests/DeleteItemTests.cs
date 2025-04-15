@@ -2,7 +2,7 @@ using DotNetInterview.API;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using DotNetInterview.API.Domain;
-using DotNetInterview.API.Query;
+using DotNetInterview.API.Command;
 using DotNetInterview.Tests.TestUtilities;
 
 namespace DotNetInterview.Tests
@@ -63,18 +63,16 @@ namespace DotNetInterview.Tests
             _dataContext.SaveChanges();
 
             // invoke the query handler
-            var handler = new DeleteItemQueryHandler(_dataContext);
-            var result = await handler.Handle(new DeleteItemQuery(itemId), CancellationToken.None);
+            var handler = new DeleteItemCommandHandler(_dataContext);
+            var result = await handler.Handle(new DeleteItemCommand(itemId), CancellationToken.None);
 
             // Assert
-            //checks if item exists in db
-            Assert.IsNotNull(context.Items.Find(itemId));
-
-            // check if item in response is not null 
-            Assert.IsNotNull(result);
-
             // check if response is true
+            Assert.IsNotNull(result);
             Assert.IsTrue(result);
+
+            //checks if item is removed from db
+            Assert.IsNull(_dataContext.Items.Find(itemId));                      
         }
 
         // checks if false gets returned if item does not exist in db
@@ -85,17 +83,12 @@ namespace DotNetInterview.Tests
             var itemId = Guid.NewGuid();
 
             // invoke the query handler
-            var handler = new DeleteItemQueryHandler(_dataContext);
-            var result = await handler.Handle(new GDeleteItemQuery(itemId), CancellationToken.None);
+            var handler = new DeleteItemCommandHandler(_dataContext);
+            var result = await handler.Handle(new DeleteItemCommand(itemId), CancellationToken.None);
 
             // Assert
-            //checks if item exists in db
-            Assert.IsNull(context.Items.Find(itemId));
-
-            // check if item in response is not null 
+            // check if response is false 
             Assert.IsNotNull(result);
-
-            // check if response is false
             Assert.IsFalse(result);
         }
 
@@ -110,11 +103,11 @@ namespace DotNetInterview.Tests
             _dataContext.Dispose();
 
             // invoke the query handler
-            var handler = new DeleteItemQueryHandler(_dataContext);
+            var handler = new DeleteItemCommandHandler(_dataContext);
 
             // Assert
             // check if handler responds with InvalidOperationException/ObjectDisposedException on attempting to use a disposed DbContext
-            Assert.That(async () => await handler.Handle(new DeleteItemQuery(itemId), CancellationToken.None),
+            Assert.That(async () => await handler.Handle(new DeleteItemCommand(itemId), CancellationToken.None),
                 Throws.InstanceOf<InvalidOperationException>());
         }
     }

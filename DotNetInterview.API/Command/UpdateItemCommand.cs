@@ -5,11 +5,11 @@ namespace DotNetInterview.API.Command
 {
     public class UpdateItemCommand : IRequest<ItemDto>
     {
-        public Guid Id { get; }
-        public string Reference { get; }
-        public string Name { get; }
-        public decimal Price { get; }
-        public ICollection<VariationDto> Variations { get; }
+        public Guid Id { get; set; }
+        public string Reference { get; set; }
+        public string Name { get; set; }
+        public decimal Price { get; set; }
+        public ICollection<VariationDto> Variations { get; set; }
 
         public UpdateItemCommand(Guid id, string reference, string name, decimal price, ICollection<VariationDto> variations)
         {

@@ -23,9 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
             data.forEach(item => {
                 const tr = document.createElement('tr');
 
-                const originalPrice = `Â£${item.price.toFixed(2)}`;
+                const originalPrice = `£${item.price.toFixed(2)}`;
                 const discount = item.highestDiscount > 0
-                    ? `Â£${item.priceAfterDiscount.toFixed(2)} (${(item.highestDiscount * 100).toFixed(0)}% off)`
+                    ? `£${item.priceAfterDiscount.toFixed(2)} (${(item.highestDiscount * 100).toFixed(0)}% off)`
                     : '-';
                 const status = item.stockStatus === "In Stock"
                     ? `In Stock (${item.stockQuantity})`
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('item-id').textContent = item.id;
                 document.getElementById('item-reference').textContent = item.reference;
                 document.getElementById('item-name').textContent = item.name;
-                document.getElementById('item-price').textContent = `Â£${item.price.toFixed(2)}`;
+                document.getElementById('item-price').textContent = `£${item.price.toFixed(2)}`;
 
                 // Load variations table
                 viewVariationsTable.innerHTML = ''; // Clear existing rows

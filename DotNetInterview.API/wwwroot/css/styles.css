@@ -91,7 +91,9 @@ td a {
 
 hr {
     margin: 40px 0;
-    border: 1px solid black;
+    border: none;
+    height: 3px;
+    background-color: black;
 }
 
 .view-item {

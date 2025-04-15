@@ -69,13 +69,13 @@ namespace DotNetInterview.API.Controller
 
             try
             {
-                var item = await _mediator.Send(command);
+                var createdItem = await _mediator.Send(command);
                 var response = new ResponseDto
                 {
-                    Id = item.Id,
-                    Message = $"Item with ID {item.Id} created successfully."
+                    Id = createdItem.Id,
+                    Message = $"Item with ID {createdItem.Id} created successfully."
                 };
-                return CreatedAtAction(nameof(GetItemById), new { id = item.Id }, response);    // returns response with 201 Created status code
+                return CreatedAtAction(nameof(GetItemById), new { id = createdItem.Id }, response);    // returns response with 201 Created status code
             }
             catch (Exception ex)
             {
@@ -99,11 +99,15 @@ namespace DotNetInterview.API.Controller
 
             try
             {
-                var item = await _mediator.Send(command);
-                if (item == null)
+                var updatedItem = await _mediator.Send(command);
+                if (updatedItem == null)
                     return NotFound();  // 404 Not Found status code if the item under update could not be found in db 
 
-                return Ok(item);
+                var response = new ResponseDto
+                {
+                    Id = updatedItem.Id,
+                    Message = $"Item with ID {updatedItem.Id} updated successfully."
+                };
             }
             catch (Exception ex)
             {

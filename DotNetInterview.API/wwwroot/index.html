@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Stock List</title>
     <link rel="stylesheet" href="css/styles.css" />
+    <script src="js/main.js"></script>
 </head>
 <body>
     <div class="header-row">
@@ -23,47 +24,9 @@
                 <th>Action</th>
             </tr>
         </thead>
-        <tbody>
-            <tr>
-                <td>A123</td>
-                <td>Shorts</td>
-                <td>£35.00</td>
-                <td>£31.50 (10% off)</td>
-                <td>In Stock (10)</td>
-                <td>
-                    <a href="#" onclick="showViewItem(event)">View</a> |
-                    <a href="#edit" onclick="showEditSection(event)">Edit</a> |
-                    <a href="#">Delete</a>
-                </td>
-            </tr>
-            <tr>
-                <td>B456</td>
-                <td>Tie</td>
-                <td>£15.00</td>
-                <td>-</td>
-                <td>Sold Out</td>
-                <td>
-                    <a href="#" onclick="showViewItem(event)">View</a> |
-                    <a href="#edit" onclick="showEditSection(event)">Edit</a> |
-                    <a href="#">Delete</a>
-                </td>
-            </tr>
-            <tr>
-                <td>C789</td>
-                <td>Shoes</td>
-                <td>£70.00</td>
-                <td>£56.00 (20% off)</td>
-                <td>In Stock (15)</td>
-                <td>
-                    <a href="#" onclick="showViewItem(event)">View</a> |
-                    <a href="#edit" onclick="showEditSection(event)">Edit</a> |
-                    <a href="#">Delete</a>
-                </td>
-            </tr>
+        <tbody id="stock-table-body">
         </tbody>
     </table>
-
-    <hr />
 
     <div class="view-item" id="view-item-section" style="display: none;">
         <div class="view-header">
@@ -71,52 +34,34 @@
             <button class="edit-btn">Edit</button>
         </div>
         <div class="view-details">
-            <table class="info-table">
+            <table class="info-table" id="view-item-table">
                 <tr>
                     <td><strong>ID:</strong></td>
-                    <td>ce56b68c-4453-4842-84b1-69870f02db03</td>
+                    <td id="item-id"></td>
                 </tr>
                 <tr>
                     <td><strong>Reference:</strong></td>
-                    <td>A123</td>
+                    <td id="item-reference"></td>
                 </tr>
                 <tr>
                     <td><strong>Name:</strong></td>
-                    <td>Shorts</td>
+                    <td id="item-name"></td>
                 </tr>
                 <tr>
                     <td><strong>Price:</strong></td>
-                    <td>£35.00</td>
+                    <td id="item-price"></td>
                 </tr>
             </table>
         </div>
 
         <div class="view-variations">
             <h3>Variations:</h3>
-            <table class="info-table variations-table">
-                <tr>
-                    <td><strong>Size:</strong></td>
-                    <td>Small</td>
-                    <td><strong>Quantity:</strong></td>
-                    <td>7</td>
-                </tr>
-                <tr>
-                    <td><strong>Size:</strong></td>
-                    <td>Medium</td>
-                    <td><strong>Quantity:</strong></td>
-                    <td>0</td>
-                </tr>
-                <tr>
-                    <td><strong>Size:</strong></td>
-                    <td>Large</td>
-                    <td><strong>Quantity:</strong></td>
-                    <td>3</td>
-                </tr>
+            <table class="info-table variations-table" id="view-variations-table">
             </table>
         </div>
     </div>
 
-    <div id="create-form-section" style="display: none;">
+    <div id="create-item-section" style="display: none;">
         <h2>Create New Item</h2>
         <form id="create-form">
             <div class="form-group">
@@ -243,7 +188,7 @@
 
 
     <script>
-    const createFormSection = document.getElementById('create-form-section');
+    const createFormSection = document.getElementById('create-item-section');
     const viewItemSection = document.getElementById('view-item-section');
 
     // Show the Create form and hide the View Item section

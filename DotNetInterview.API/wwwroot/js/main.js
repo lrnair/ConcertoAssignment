@@ -152,8 +152,10 @@ document.addEventListener('DOMContentLoaded', () => {
         newRow.innerHTML = `
             <label>Size:</label>
             <input type="text" name="create-size[]" required>
+            <span class="error-message size-error"></span>
             <label>Quantity:</label>
             <input type="number" name="create-quantity[]" min="0" required>
+            <span class="error-message quantity-error"></span>
           `;
         createVariationRows.appendChild(newRow);
     });
@@ -196,9 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Create Item
-    createItemSubmitBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-
+    function createItem() {
         // Gather form data
         const reference = document.getElementById('create-reference').value;
         const name = document.getElementById('create-name').value;
@@ -233,28 +233,28 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             body: JSON.stringify(payload)
         })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to create item.');
-                }
-                return response.json();
-            })
-            .then(data => {
-                const createdItemId = data.id;
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to create item.');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const createdItemId = data.id;
 
-                // Hide the create form
-                createItemSection.style.display = 'none';
+            // Hide the create form
+            createItemSection.style.display = 'none';
 
-                // Clear the form fields
-                createForm.reset();
-                createVariationRows.innerHTML = '';
+            // Clear the form fields
+            createForm.reset();
+            createVariationRows.innerHTML = '';
 
-                showPopup(data.message || 'Item created successfully!', createdItemId);
-            })
-            .catch(error => {
-                console.error('Error creating item:', error);
-            });
-    });
+            showPopup(data.message || 'Item created successfully!', createdItemId);
+        })
+        .catch(error => {
+            console.error('Error creating item:', error);
+        });
+    }
 
     // Delete Item
     function deleteItem(itemId) {
@@ -286,9 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Edit Item
-    editItemSubmitBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-
+    function editItem() {
         // Gather form data
         const id = document.getElementById('edit-id').value;
         const reference = document.getElementById('edit-reference').value;
@@ -327,28 +325,28 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             body: JSON.stringify(payload)
         })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to create item.');
-                }
-                return response.json();
-            })
-            .then(data => {
-                const updatedItemId = data.id;
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to create item.');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const updatedItemId = data.id;
 
-                // Hide the edit form
-                editItemSection.style.display = 'none';
+            // Hide the edit form
+            editItemSection.style.display = 'none';
 
-                // Clear the form fields
-                editForm.reset();
-                editVariationRows.innerHTML = '';
+            // Clear the form fields
+            editForm.reset();
+            editVariationRows.innerHTML = '';
 
-                showPopup(data.message || 'Item updated successfully!', updatedItemId);
-            })
-            .catch(error => {
-                console.error('Error creating item:', error);
-            });
-    });
+            showPopup(data.message || 'Item updated successfully!', updatedItemId);
+        })
+        .catch(error => {
+            console.error('Error creating item:', error);
+        });
+    }
 
     // Load edit form
     function loadEditItemDetails(itemId) {
@@ -379,8 +377,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     <input type="text" name="edit-variation-id[]" value="${variation.id}" disabled>
                     <label>Size:</label>
                     <input type="text" name="edit-size[]" value="${variation.size}" required>
+                    <span class="error-message size-error"></span>
                     <label>Quantity:</label>
                     <input type="number" name="edit-quantity[]" value="${variation.quantity}" min="0" required>
+                    <span class="error-message quantity-error"></span>
                 `;
                     variationContainer.appendChild(row);
                 });
@@ -432,4 +432,125 @@ document.addEventListener('DOMContentLoaded', () => {
         viewItemSection.style.display = 'none';
         loadEditItemDetails(itemId);
     };
+
+    // Form validations
+    editForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        let isValid = true;
+
+        // Clear previous error messages
+        document.querySelectorAll('.error-message').forEach(span => span.textContent = '');
+
+        // Validate Reference
+        const referenceInput = document.getElementById('edit-reference');
+        if (referenceInput.value.trim() === '') {
+            document.getElementById('error-edit-reference').textContent = 'Reference is required.';
+            isValid = false;
+        }
+
+        // Validate Name
+        const nameInput = document.getElementById('edit-name');
+        if (nameInput.value.trim() === '') {
+            document.getElementById('error-edit-name').textContent = 'Name is required.';
+            isValid = false;
+        }
+
+        // Validate Price
+        const priceInput = document.getElementById('edit-price');
+        if (priceInput.value.trim() === '') {
+            document.getElementById('error-edit-price').textContent = 'Price is required.';
+            isValid = false;
+        } else if (parseFloat(priceInput.value) < 0) {
+            document.getElementById('error-edit-price').textContent = 'Price cannot be negative.';
+            isValid = false;
+        }
+
+        // Validate Variations
+        const sizeInputs = document.querySelectorAll('input[name="edit-size[]"]');
+        const quantityInputs = document.querySelectorAll('input[name="edit-quantity[]"]');
+
+        sizeInputs.forEach((input, index) => {
+            const errorSpan = input.nextElementSibling;
+            if (input.value.trim() === '') {
+                errorSpan.textContent = 'Size is required.';
+                isValid = false;
+            }
+        });
+
+        quantityInputs.forEach((input, index) => {
+            const errorSpan = input.nextElementSibling;
+            if (input.value.trim() === '') {
+                errorSpan.textContent = 'Quantity is required.';
+                isValid = false;
+            } else if (parseInt(input.value) < 0) {
+                errorSpan.textContent = 'Quantity cannot be negative.';
+                isValid = false;
+            }
+        });
+
+        if (isValid) {
+            editItem();
+        }
+    });
+
+    createForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        let isValid = true;
+
+        // Clear previous error messages
+        document.querySelectorAll('.error-message').forEach(span => span.textContent = '');
+
+        // Validate Reference
+        const referenceInput = document.getElementById('create-reference');
+        if (referenceInput.value.trim() === '') {
+            document.getElementById('error-create-reference').textContent = 'Reference is required.';
+            isValid = false;
+        }
+
+        // Validate Name
+        const nameInput = document.getElementById('create-name');
+        if (nameInput.value.trim() === '') {
+            document.getElementById('error-create-name').textContent = 'Name is required.';
+            isValid = false;
+        }
+
+        // Validate Price
+        const priceInput = document.getElementById('create-price');
+        if (priceInput.value.trim() === '') {
+            document.getElementById('error-create-price').textContent = 'Price is required.';
+            isValid = false;
+        } else if (parseFloat(priceInput.value) < 0) {
+            document.getElementById('error-create-price').textContent = 'Price cannot be negative.';
+            isValid = false;
+        }
+
+        // Validate Variations
+        const sizeInputs = document.querySelectorAll('input[name="create-size[]"]');
+        const quantityInputs = document.querySelectorAll('input[name="create-quantity[]"]');
+
+        sizeInputs.forEach((input, index) => {
+            const errorSpan = input.nextElementSibling;
+            if (input.value.trim() === '') {
+                errorSpan.textContent = 'Size is required.';
+                isValid = false;
+            }
+        });
+
+        quantityInputs.forEach((input, index) => {
+            const errorSpan = input.nextElementSibling;
+            if (input.value.trim() === '') {
+                errorSpan.textContent = 'Quantity is required.';
+                isValid = false;
+            } else if (parseInt(input.value) < 0) {
+                errorSpan.textContent = 'Quantity cannot be negative.';
+                isValid = false;
+            }
+        });
+
+        if (isValid) {
+            createItem();
+        }
+    });
 });

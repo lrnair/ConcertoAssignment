@@ -69,12 +69,15 @@
         <form id="create-form">
             <label for="reference">Reference:</label>
             <input type="text" id="create-reference" name="reference" required>
-  
+            <span class="error-message" id="error-create-reference"></span>
+
             <label for="name">Name:</label>
             <input type="text" id="create-name" name="name" required>
-               
+            <span class="error-message" id="error-edit-name"></span>
+
             <label for="price">Price:</label>
-            <input type="number" id="create-price" name="price" step="0.01" required>
+            <input type="number" id="create-price" name="price" step="1" min="0" required>
+            <span class="error-message" id="error-create-price"></span>
 
             <h3>Variations:</h3>
 
@@ -82,7 +85,7 @@
                 <button type="button" id="create-add-variation-btn">+ Variation</button>
                 <button type="button" id="create-remove-variation-btn">- Variation</button>
             </div>
-   
+
             <div id="create-variation-rows">
             </div>
 
@@ -98,12 +101,15 @@
 
             <label>Reference:</label>
             <input type="text" id="edit-reference" name="reference" required>
+            <span class="error-message" id="error-edit-reference"></span>
 
             <label>Name:</label>
             <input type="text" id="edit-name" name="name" required>
+            <span class="error-message" id="error-edit-name"></span>
 
             <label>Price:</label>
-            <input type="number" id="edit-price" name="price" required step="0.01">
+            <input type="number" id="edit-price" name="price" step="1" min="0" required>
+            <span class="error-message" id="error-edit-price"></span>
 
             <h3>Variations:</h3>
             <div id="edit-variation-rows">

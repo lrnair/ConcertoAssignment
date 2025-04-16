@@ -193,7 +193,7 @@ hr {
     font-weight: bold;
     cursor: pointer;
     box-shadow: 3px 3px 0px black;
-    margin-top: 16px; /* spacing below Variation buttons */
+    margin-top: 16px;
 }
 
 #edit-item-section input {
@@ -283,7 +283,12 @@ hr {
     .stock-table thead th {
         position: sticky;
         top: 0;
-        background-color: white;
         z-index: 1;
         border-bottom: 2px solid black;
     }
+
+.error-message {
+    color: red;
+    font-size: 0.9em;
+    margin-left: 10px;
+}

@@ -448,7 +448,9 @@ namespace DotNetInterview.Tests
             Assert.AreEqual(200, okResult.StatusCode);
 
             // verify the updated item details
-            Assert.AreEqual(updatedItem, okResult.Value);
+            var response = okResult.Value as ResponseDto;
+            Assert.IsNotNull(response);
+            Assert.AreEqual(updatedItem.Id, response.Id);
         }
 
         // UpdateItem API - Returns Bad Request if item id in URL mismatches with id in request

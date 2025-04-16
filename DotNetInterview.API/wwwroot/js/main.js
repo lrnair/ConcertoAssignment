@@ -6,7 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const createItemBtn = document.getElementById('create-item-btn');
     const createAddVariationBtn = document.getElementById('create-add-variation-btn');
     const createRemoveVariationBtn = document.getElementById('create-remove-variation-btn');
-    const variationSection = document.getElementById('variation-section');
     const createVariationRows = document.getElementById('create-variation-rows');
     const createForm = document.getElementById('create-form');
     const createItemSubmitBtn = document.getElementById('create-submit-btn');
@@ -133,8 +132,8 @@ document.addEventListener('DOMContentLoaded', () => {
         createForm.reset();
 
         // Remove all variation rows
-        while (variationRows.firstChild) {
-            variationRows.removeChild(variationRows.firstChild);
+        while (createVariationRows.firstChild) {
+            createVariationRows.removeChild(createVariationRows.firstChild);
         }
 
         // show only create item section hiding others
@@ -148,37 +147,26 @@ document.addEventListener('DOMContentLoaded', () => {
     createAddVariationBtn.addEventListener('click', (e) => {
         e.preventDefault();
 
-        const isHidden = window.getComputedStyle(variationSection).display === 'none';
-
-        if (isHidden) {
-            variationSection.style.display = 'block';
-        }
-
         // Add new variation row
         const newRow = document.createElement('div');
         newRow.classList.add('variation-row');
         newRow.innerHTML = `
             <label>Size:</label>
-            <input type="text" name="size[]" required>
+            <input type="text" name="create-size[]" required>
             <label>Quantity:</label>
-            <input type="number" name="quantity[]" min="0" required>
+            <input type="number" name="create-quantity[]" min="0" required>
           `;
-        variationRows.appendChild(newRow);
+        createVariationRows.appendChild(newRow);
     });
 
     // Create '- Variation' button click
     createRemoveVariationBtn.addEventListener('click', (e) => {
         e.preventDefault();
 
-        const rows = variationRows.getElementsByClassName('variation-row');
+        const rows = createVariationRows.getElementsByClassName('variation-row');
 
         if (rows.length > 0) {
-            variationRows.removeChild(rows[rows.length - 1]);
-        }
-
-        // Hide the section when no variation rows are left
-        if (rows.length === 0) {
-            variationSection.style.display = 'none';
+            createVariationRows.removeChild(rows[rows.length - 1]);
         }
     });
 
@@ -218,8 +206,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const price = parseFloat(document.getElementById('create-price').value);
 
         // Gather variations
-        const sizeInputs = document.querySelectorAll('input[name="size[]"]');
-        const quantityInputs = document.querySelectorAll('input[name="quantity[]"]');
+        const sizeInputs = document.querySelectorAll('input[name="create-size[]"]');
+        const quantityInputs = document.querySelectorAll('input[name="create-quantity[]"]');
         const variations = [];
 
         for (let i = 0; i < sizeInputs.length; i++) {
@@ -290,11 +278,13 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
 
-    // Edit '- Variation' button click
+    // Edit '+ Variation' button click
     editAddVariationBtn.addEventListener('click', () => {
         const newRow = document.createElement('div');
         newRow.classList.add('variation-row');
         newRow.innerHTML = `
+            <label>Variation ID:</label>
+            <input type="text" name="edit-variation-id" disabled>
             <label>Size:</label>
             <input type="text" name="edit-size[]" required>
             <label>Quantity:</label>
@@ -322,16 +312,32 @@ document.addEventListener('DOMContentLoaded', () => {
         const price = parseFloat(document.getElementById('edit-price').value);
 
         // Gather variations
-        const sizeInputs = document.querySelectorAll('input[name="size[]"]');
-        const quantityInputs = document.querySelectorAll('input[name="quantity[]"]');
+        const varIdInputs = document.querySelectorAll('input[name="edit-variation-id[]"]');
+        const sizeInputs = document.querySelectorAll('input[name="edit-size[]"]');
+        const quantityInputs = document.querySelectorAll('input[name="edit-quantity[]"]');
         const variations = [];
 
         for (let i = 0; i < sizeInputs.length; i++) {
+            const varId = varIdInputs[i];
             const size = sizeInputs[i].value;
             const quantity = parseInt(quantityInputs[i].value);
-            if (size && !isNaN(quantity)) {
-                variations.push({ size, quantity });
+            //if (size && !isNaN(quantity)) {
+            //    variations.push({ id, size, quantity });
+            //}
+            if (!size || isNaN(quantity)) continue;
+
+            const variation = {
+                id: null,   // variation id has to be null for new variations added
+                size,
+                quantity
+            };
+
+            // Set variation id if available
+            if (varId && varId.value) {
+                variation.id = varId.value;
             }
+
+            variations.push(variation);
         }
 
         // Prepare data payload
@@ -399,6 +405,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     const row = document.createElement('div');
                     row.classList.add('variation-row');
                     row.innerHTML = `
+                    <label>Variation ID:</label>
+                    <input type="text" name="edit-variation-id[]" value="${variation.id}" disabled>
                     <label>Size:</label>
                     <input type="text" name="edit-size[]" value="${variation.size}" required>
                     <label>Quantity:</label>

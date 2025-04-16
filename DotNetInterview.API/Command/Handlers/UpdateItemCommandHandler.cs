@@ -52,7 +52,6 @@ namespace DotNetInterview.API.Command
             {
                 if (variation.Id.HasValue && variation.Id.Value != Guid.Empty)
                 {
-                    // Update existing Variations
                     var existingVariation = item.Variations.FirstOrDefault(v => v.Id == variation.Id);
                     if (existingVariation != null)
                     {
@@ -62,36 +61,21 @@ namespace DotNetInterview.API.Command
                 }
             }
 
-            // Add new Variations
-            //var newVariations = request.Variations
-            //    .Where(v => !v.Id.HasValue || v.Id.Value == Guid.Empty || v.Id == null)
-            //    .Select(v => new Variation
-            //    {
-            //        Id = Guid.NewGuid(),
-            //        ItemId = item.Id,
-            //        Size = v.Size,
-            //        Quantity = v.Quantity
-            //    });
+            //Add new Variations
+            var newVariations = request.Variations
+                .Where(v => !v.Id.HasValue || v.Id.Value == Guid.Empty || v.Id == null)
+                .Select(v => new Variation
+                {
+                    Id = Guid.NewGuid(),
+                    ItemId = item.Id,
+                    Size = v.Size,
+                    Quantity = v.Quantity
+                });
 
-            //foreach (var variation in newVariations)
-            //{
-            //    item.Variations.Add(variation);
-            //}
-
-            //// Identify new variations from the request
-            //var newVariations = request.Variations
-            //    .Where(v => !v.Id.HasValue || v.Id == Guid.Empty)
-            //    .Select(v => new Variation
-            //    {
-            //        Id = Guid.NewGuid(),
-            //        ItemId = item.Id,
-            //        Size = v.Size,
-            //        Quantity = v.Quantity
-            //    })
-            //    .ToList();
-
-            //// Append new variations to the existing list
-            //item.Variations.AddRange(newVariations);
+            foreach (var variation in newVariations)
+            {
+                item.Variations.Add(variation);
+            }
 
             await _context.SaveChangesAsync(cancellationToken);
 

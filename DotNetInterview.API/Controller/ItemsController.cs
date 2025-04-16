@@ -100,6 +100,7 @@ namespace DotNetInterview.API.Controller
             try
             {
                 var updatedItem = await _mediator.Send(command);
+
                 if (updatedItem == null)
                     return NotFound();  // 404 Not Found status code if the item under update could not be found in db 
 
@@ -108,6 +109,7 @@ namespace DotNetInterview.API.Controller
                     Id = updatedItem.Id,
                     Message = $"Item with ID {updatedItem.Id} updated successfully."
                 };
+                return Ok(response);
             }
             catch (Exception ex)
             {

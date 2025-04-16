@@ -28,7 +28,7 @@ namespace DotNetInterview.API.Command
             item.Name = request.Name;
             item.Price = request.Price;
 
-            // Variations are optional. Can be updated, deleted or added.
+            // Variations are optional. Can be updated or deleted.
 
             // Delete existing Variations
             // Create a list of Variation Ids in request
@@ -59,22 +59,6 @@ namespace DotNetInterview.API.Command
                         existingVariation.Quantity = variation.Quantity;
                     }
                 }
-            }
-
-            //Add new Variations
-            var newVariations = request.Variations
-                .Where(v => !v.Id.HasValue || v.Id.Value == Guid.Empty || v.Id == null)
-                .Select(v => new Variation
-                {
-                    Id = Guid.NewGuid(),
-                    ItemId = item.Id,
-                    Size = v.Size,
-                    Quantity = v.Quantity
-                });
-
-            foreach (var variation in newVariations)
-            {
-                item.Variations.Add(variation);
             }
 
             await _context.SaveChangesAsync(cancellationToken);

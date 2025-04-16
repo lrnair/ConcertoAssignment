@@ -28,7 +28,7 @@ namespace DotNetInterview.API.Command
             item.Name = request.Name;
             item.Price = request.Price;
 
-            // Variations are optional. Can be updated or deleted.
+            // Variations are optional. Can be updated, deleted or added.
 
             // Delete existing Variations
             // Create a list of Variation Ids in request
@@ -47,11 +47,25 @@ namespace DotNetInterview.API.Command
                 item.Variations.Remove(variation);
             }
 
-            // Update existing Variations
             foreach (var variation in request.Variations)
             {
-                if (variation.Id.HasValue && variation.Id.Value != Guid.Empty)
+                if (!variation.Id.HasValue || variation.Id.Value == Guid.Empty)
                 {
+                    // Add new variation
+                    var newVariation = new Variation
+                    {
+                        Id = Guid.NewGuid(),
+                        ItemId = request.Id,
+                        Size = variation.Size,
+                        Quantity = variation.Quantity
+                    };
+
+                    _context.Entry(newVariation).State = EntityState.Added; // tells EF Core that these are new variations that must be inserted
+                    item.Variations.Add(newVariation);
+                }
+                else
+                {
+                    // Update existing Variations
                     var existingVariation = item.Variations.FirstOrDefault(v => v.Id == variation.Id);
                     if (existingVariation != null)
                     {

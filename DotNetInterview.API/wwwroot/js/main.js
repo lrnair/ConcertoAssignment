@@ -8,13 +8,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const createRemoveVariationBtn = document.getElementById('create-remove-variation-btn');
     const createVariationRows = document.getElementById('create-variation-rows');
     const createForm = document.getElementById('create-form');
-    const createItemSubmitBtn = document.getElementById('create-submit-btn');
     const popupOkBtn = document.getElementById('popup-ok-btn');
     const editItemBtn = document.getElementById('edit-item-btn');
     const editForm = document.getElementById('edit-form');
+    const editAddVariationBtn = document.getElementById('edit-add-row-btn');
     const editRemoveVariationBtn = document.getElementById('edit-remove-row-btn');
     const editVariationRows = document.getElementById('edit-variation-rows');
-    const editItemSubmitBtn = document.getElementById('edit-submit-btn');
 
     // Hide all sections on page load
     viewItemSection.style.display = 'none';
@@ -277,6 +276,23 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
 
+    // Edit '+ Variation' button click
+    editAddVariationBtn.addEventListener('click', () => {
+        const newRow = document.createElement('div');
+        newRow.classList.add('variation-row');
+        newRow.innerHTML = `
+             <label>Variation ID:</label>
+             <input type="text" name="edit-variation-id" disabled>
+             <label>Size:</label>
+             <input type="text" name="edit-size[]" required>
+             <span class="error-message size-error"></span>
+             <label>Quantity:</label>
+             <input type="number" name="edit-quantity[]" min="0" required>
+             <span class="error-message quantity-error"></span>
+           `;
+        editVariationRows.appendChild(newRow);
+    });
+
     // Edit '- Variation' button click
     editRemoveVariationBtn.addEventListener('click', () => {
         const rows = editVariationRows.getElementsByClassName('variation-row');
@@ -300,12 +316,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const variations = [];
 
         for (let i = 0; i < sizeInputs.length; i++) {
-            const id = varIdInputs[i].value;
+            const varId = varIdInputs[i];
             const size = sizeInputs[i].value;
             const quantity = parseInt(quantityInputs[i].value);
-            if (size && !isNaN(quantity)) {
-                variations.push({ id, size, quantity });
+
+            if (!size || isNaN(quantity)) continue;
+
+            const variation = {
+                id: null,   // variation id has to be null for new variations added
+                itemId: id,
+                size,
+                quantity
+            };
+
+            // Set variation id if available
+            if (varId && varId.value) {
+                variation.id = varId.value;
             }
+
+            variations.push(variation);
         }
 
         // Prepare data payload

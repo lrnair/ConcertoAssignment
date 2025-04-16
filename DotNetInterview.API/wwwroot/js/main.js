@@ -302,7 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const variations = [];
 
         for (let i = 0; i < sizeInputs.length; i++) {
-            const varId = varIdInputs[i];
+            const id = varIdInputs[i].value;
             const size = sizeInputs[i].value;
             const quantity = parseInt(quantityInputs[i].value);
             if (size && !isNaN(quantity)) {
